@@ -24,13 +24,15 @@
                 <i class="fa-solid fa-user-plus text-blue-600"></i> Nouvel Accès
             </h3>
             <div class="space-y-4" id="admin-create-form">
+                <input type="text" id="adm-uid" placeholder="UID Firebase (copié depuis la console)" class="w-full p-3 bg-slate-50 rounded-xl border mb-2">
+                <input type="text" id="adm-service" placeholder="Service / Département" class="w-full p-3 bg-slate-50 rounded-xl border mb-2">
                 <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 rounded-xl border">
                 <input type="email" id="adm-email" placeholder="Email" class="w-full p-3 bg-slate-50 rounded-xl border">
                 <select id="adm-role" class="w-full p-3 bg-slate-50 rounded-xl border">
                     <option value="agent">Agent (Accès Index standard)</option>
                     <option value="admin">Administrateur (Accès Total)</option>
                 </select>
-                <button onclick="App.admin.createNewUser()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">
+                <button onclick="AdminApp.saveUserPermissions()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">
                     Valider l'habilitation
                 </button>
             </div>
