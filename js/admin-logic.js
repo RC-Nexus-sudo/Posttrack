@@ -104,4 +104,32 @@ const AdminApp = {
     }
 };
 
+// Remplit le formulaire pour modification
+editUser: function(id) {
+    window.db.collection("users").doc(id).get().then(doc => {
+        if (doc.exists) {
+            const u = doc.data();
+            document.getElementById('adm-uid').value = id;
+            document.getElementById('adm-prenom').value = u.prenom;
+            document.getElementById('adm-nom').value = u.nom;
+            document.getElementById('adm-email').value = u.email;
+            document.getElementById('adm-service').value = u.service;
+            document.getElementById('adm-role').value = u.role;
+            
+            this.log("Édition de l'agent : " + u.nom);
+            // On scrolle vers le haut pour voir le formulaire
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+},
+
+// Supprime un accès
+deleteUser: function(id) {
+    if (confirm("🚨 Voulez-vous vraiment révoquer l'accès de cet agent ?\nCette action est irréversible dans Firestore.")) {
+        window.db.collection("users").doc(id).delete()
+            .then(() => this.log("Accès révoqué pour l'UID : " + id))
+            .catch(err => alert("Erreur suppression : " + err.message));
+    }
+},
+
 AdminApp.init();
