@@ -170,6 +170,54 @@ const AdminApp = {
     }
 };
 
+// 9 AJOUTER UN SERVICE
+addService: function() {
+    const name = document.getElementById('new-service-name').value.trim();
+    const color = document.getElementById('new-service-color').value;
+    
+    if (!name) return alert("Nom requis");
+
+    window.db.collection("services").doc(name).set({
+        name: name,
+        color: color
+    }).then(() => {
+        this.log(`Service ${name} ajouté.`);
+        document.getElementById('new-service-name').value = "";
+    });
+},
+
+// 10. CHARGER LES SERVICES DANS L'ADMIN ET DANS LE MENU DEROULANT
+loadServices: function() {
+    const listAdmin = document.getElementById('services-list-admin');
+    const selectAgent = document.getElementById('adm-service');
+
+    window.db.collection("services").onSnapshot(snap => {
+        listAdmin.innerHTML = "";
+        selectAgent.innerHTML = '<option value="">-- Choisir un service --</option>';
+
+        snap.forEach(doc => {
+            const s = doc.data();
+            // Badge dans l'admin
+            listAdmin.innerHTML += `
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 text-[10px] font-bold text-white" style="background: ${s.color}22; border-color: ${s.color}">
+                    <span class="w-2 h-2 rounded-full" style="background: ${s.color}"></span>
+                    ${s.name}
+                    <button onclick="AdminApp.deleteService('${doc.id}')" class="ml-1 text-slate-500 hover:text-white">×</button>
+                </div>`;
+            
+            // Option dans le formulaire agent
+            selectAgent.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+        });
+    });
+},
+
+deleteService: function(id) {
+    if(confirm("Supprimer ce service ?")) window.db.collection("services").doc(id).delete();
+},
+
+logout: function() {
+    window.auth.signOut().then(() => window.location.href = 'index.html');
+}
 AdminApp.init();
 
 
