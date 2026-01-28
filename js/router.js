@@ -1,0 +1,56 @@
+/**
+ * Router Module - Gestion de la navigation SPA
+ */
+App.router = {
+    // Définition des routes et des titres correspondants
+    routes: {
+        'dashboard': { title: 'Tableau de Bord', icon: 'fa-gauge' },
+        'entrants': { title: 'Courriers Entrants', icon: 'fa-inbox' },
+        'sortants': { title: 'Courriers Sortants', icon: 'fa-paper-plane' },
+        'emails': { title: 'Emails Boite Info', icon: 'fa-envelope' },
+        'ebox': { title: 'eBox Institutionnelle', icon: 'fa-box-archive' },
+        'parametres': { title: 'Paramètres Système', icon: 'fa-gears' }
+    },
+
+    // Fonction principale pour changer de vue
+    go: function(routeId) {
+        try {
+            const view = this.routes[routeId];
+            if (!view) throw new Error(`Route "${routeId}" non définie.`);
+
+            // 1. Mise à jour de l'interface (Active state sur la sidebar)
+            this.updateSidebarUI(routeId);
+
+            // 2. Injection du template via App.templates
+            const mainDisplay = document.getElementById('app-view');
+            
+            // On génère une vue de base (Dashboard ou Tableaux)
+            mainDisplay.innerHTML = App.templates.renderView(routeId, view.title);
+
+            // 3. Log de l'action
+            App.logger.log(`Navigation vers : ${view.title}`, 'info');
+
+            // 4. (Optionnel) Charger les données Firebase spécifiques au module
+            this.loadModuleData(routeId);
+
+        } catch (error) {
+            App.logger.log(`Erreur de routage : ${error.message}`, 'error');
+        }
+    },
+
+    updateSidebarUI: function(activeId) {
+        const nav = document.getElementById('sidebar-nav');
+        // On pourrait ici ajouter une classe "bg-blue-600" au bouton actif
+    },
+
+    loadModuleData: function(routeId) {
+        // Logique pour appeler les fonctions de courriers-entrants.js, etc.
+        App.logger.log(`Initialisation des données pour [${routeId}]...`, 'debug');
+    }
+};
+
+// Initialisation au chargement
+window.addEventListener('DOMContentLoaded', () => {
+    // Par défaut, on affiche le dashboard
+    App.router.go('dashboard');
+});
