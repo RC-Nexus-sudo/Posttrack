@@ -1,3 +1,5 @@
+App.auth.init();
+
 document.addEventListener('DOMContentLoaded', () => {
     App.logger.log("Système : Initialisation de l'application...", "info");
 
