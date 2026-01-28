@@ -93,40 +93,25 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs d'abord -->
-<script src="https://www.gstatic.com"></script>
-<script src="https://www.gstatic.com"></script>
-<script src="https://www.gstatic.com"></script>
+        <!-- 1. Bibliothèques Firebase Locales (Indispensable en premier) -->
+    <script src="lib/firebase-app-compat.js"></script>
+    <script src="lib/firebase-firestore-compat.js"></script>
+    <script src="lib/firebase-auth-compat.js"></script>
 
-<!-- Initialisation de l'objet App (obligatoire avant tout le reste) -->
-<script>
-    var App = { 
-        modules: {}, 
-        auth: { login: () => console.log("Login clicked") } 
-    };
-</script>
-
-<!-- Vos fichiers JS -->
-<script src="lib/firebase-app-compat.js"></script>
-<script src="lib/firebase-firestore-compat.js"></script>
-<script src="lib/firebase-auth-compat.js"></script>
-
-<!-- 1. Cœur du système (Initialise l'objet App et les logs) -->
+    <!-- 2. Cœur du système et Logs -->
     <script src="js/logger.js"></script>
 
-    <!-- 2. Les données (Le Router contient la liste des modules) -->
+    <!-- 3. Structure des données (Router définit les routes avant que templates ne les dessine) -->
     <script src="js/router.js"></script>
 
-    <!-- 3. Le visuel (Les templates utilisent les données du Router) -->
+    <!-- 4. Le visuel (Génère la sidebar et les vues) -->
     <script src="js/templates.js"></script>
 
-    <!-- 4. La connexion (Firebase utilise les logs) -->
+    <!-- 5. Configuration Firebase (Connecte Firestore) -->
     <script src="js/firebase-config.js"></script>
 
-    <!-- 5. Les modules spécifiques -->
+    <!-- 6. Modules spécifiques et Lancement final -->
     <script src="js/courriers-entrants.js"></script>
-
-    <!-- 6. Le Chef d'orchestre (Lance tout quand le DOM est prêt) -->
     <script src="js/app.js"></script>
 
 </body>
