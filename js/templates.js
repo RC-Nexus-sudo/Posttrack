@@ -1,4 +1,4 @@
-var App = App || {}; // Sécurité : crée App si non défini
+var App = App || { modules: {} }; // Sécurité : crée App si non défini
 
 App.templates.sidebar = function() {
     // On boucle sur l'objet routes que vous avez défini dans le router
