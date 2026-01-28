@@ -41,8 +41,9 @@
             <div class="space-y-4">
                 <!-- Tes champs de formulaire (adm-uid, adm-prenom, etc.) -->
                 <div>
-                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">UID Firebase</label>
-                    <input type="text" id="adm-uid" placeholder="ID depuis la console Auth" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-600 outline-none text-sm">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Référence Système (Auto)</label>
+                    <input type="text" id="adm-uid" placeholder="Généré automatiquement" readonly 
+                       class="w-full p-3 bg-slate-100 border rounded-xl text-xs text-slate-500 cursor-not-allowed">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
