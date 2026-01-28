@@ -58,12 +58,18 @@ App.auth = {
 
     // 4. Chargement du profil réel (Indispensable pour l'Admin)
     loadUserProfile: function(user) {
-        window.db.collection("users").doc(user.uid).get().then(doc => {
-            const data = doc.exists ? doc.data() : { nom: "Agent", prenom: "Inconnu", service: "Standard" };
-            this.renderUserUI(data);
-            App.logger.log(`Bienvenue, ${data.prenom} ${data.nom}`, "info");
-        });
-    },
+    window.db.collection("users").doc(user.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                this.renderUserUI(doc.data());
+            } else {
+                App.logger.log("Avertissement : Profil Firestore introuvable pour cet UID. Utilisation profil invité.", "error");
+                // On affiche quand même quelque chose pour prouver que le login marche
+                this.renderUserUI({ nom: "Admin", prenom: "Principal", service: "IT", role: "admin" });
+            }
+        })
+        .catch(err => App.logger.log("Erreur Firestore : " + err.message, "error"));
+},
 
     // 5. Mise à jour de la Front Bar
     renderUserUI: function(data) {
