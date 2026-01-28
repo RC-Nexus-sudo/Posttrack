@@ -52,6 +52,8 @@ body {
     border-top: 1px solid #1e293b;
     scrollbar-width: thin;
     scrollbar-color: #334155 #000;
+    z-index: 30;
+    position: relative; /* Assure que le flux est respecté */
 }
 
 #debug-console::-webkit-scrollbar {
