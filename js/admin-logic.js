@@ -1,72 +1,94 @@
 /**
- * Admin Logic - Gestion du Registre des Habilitations
+ * Admin Logic - Gestion sécurisée des habilitations
  */
 const AdminApp = {
     init: function() {
-        console.log("Admin Logic Initialized");
-        this.loadRegistry();
+        this.log("Initialisation du registre...");
+        this.listenAuth();
+        this.loadUsers();
     },
 
-    // 1. Enregistrer les informations d'un agent créé dans la console
-    saveUserPermissions: function() {
-        const uid = document.getElementById('adm-uid').value; // Ajoutez un champ UID dans admin.html
-        const nom = document.getElementById('adm-nom').value;
-        const email = document.getElementById('adm-email').value;
-        const role = document.getElementById('adm-role').value;
-        const service = document.getElementById('adm-service').value;
-
-        if(!uid || !nom) {
-            alert("L'UID et le Nom sont obligatoires");
-            return;
-        }
-
-        window.db.collection("users").doc(uid).set({
-            nom: nom,
-            email: email,
-            role: role,
-            service: service,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
-            alert("Habilitation enregistrée avec succès !");
-            this.clearForm();
-        })
-        .catch(error => console.error("Erreur : ", error));
+    log: function(msg) {
+        const logBox = document.getElementById('admin-logs');
+        const time = new Date().toLocaleTimeString();
+        logBox.innerHTML += `<div>[${time}] ${msg}</div>`;
+        logBox.scrollTop = logBox.scrollHeight;
     },
 
-    // 2. Lire la liste des agents habilités
-    loadRegistry: function() {
-        const container = document.getElementById('users-registry');
-        window.db.collection("users").onSnapshot(snapshot => {
-            container.innerHTML = "";
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                container.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-700 p-4 rounded-2xl mb-2 border border-slate-600">
-                        <div>
-                            <p class="text-white font-bold">${user.nom} <span class="text-xs font-normal text-slate-400">(${user.email})</span></p>
-                            <p class="text-xs text-blue-400 uppercase tracking-widest">${user.service}</p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-[10px] bg-slate-900 px-3 py-1 rounded-full text-white border border-slate-500">${user.role}</span>
-                            <button onclick="AdminApp.deleteAccess('${doc.id}')" class="text-red-400 hover:text-red-600">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+    // Sécurité : Vérifie si l'utilisateur actuel est bien admin
+    listenAuth: function() {
+        window.auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = 'index.html';
+            window.db.collection("users").doc(user.uid).get().then(doc => {
+                if (!doc.exists || doc.data().role !== 'admin') {
+                    alert("Accès refusé.");
+                    window.location.href = 'index.html';
+                }
             });
         });
     },
 
-    deleteAccess: function(uid) {
-        if(confirm("Supprimer définitivement l'accès à cet agent ?")) {
-            window.db.collection("users").doc(uid).delete();
+    // Sauvegarde un utilisateur
+    saveUser: function() {
+        const uid = document.getElementById('adm-uid').value.trim();
+        const data = {
+            prenom: document.getElementById('adm-prenom').value.trim(),
+            nom: document.getElementById('adm-nom').value.trim(),
+            email: document.getElementById('adm-email').value.trim(),
+            service: document.getElementById('adm-service').value.trim(),
+            role: document.getElementById('adm-role').value
+        };
+
+        if (!uid || !data.nom || !data.prenom) {
+            alert("Veuillez remplir l'UID, le Nom et le Prénom (Obligatoire)");
+            return;
+        }
+
+        window.db.collection("users").doc(uid).set(data)
+            .then(() => {
+                this.log("Habilitation réussie pour : " + data.email);
+                this.clearForm();
+            })
+            .catch(err => this.log("Erreur : " + err.message));
+    },
+
+    // Affiche le registre en temps réel
+    loadUsers: function() {
+        const container = document.getElementById('users-registry');
+        window.db.collection("users").onSnapshot(snap => {
+            container.innerHTML = "";
+            snap.forEach(doc => {
+                const u = doc.data();
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center group hover:border-blue-500 transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-blue-500">
+                                ${u.prenom.charAt(0)}${u.nom.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="text-white font-bold text-sm">${u.prenom} ${u.nom}</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${u.service} • ${u.email}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-[9px] px-2 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">${u.role}</span>
+                            <button onclick="AdminApp.deleteUser('${doc.id}')" class="text-slate-600 hover:text-red-500 transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>`;
+            });
+        });
+    },
+
+    deleteUser: function(id) {
+        if (confirm("Révoquer l'accès pour cet agent ?")) {
+            window.db.collection("users").doc(id).delete();
         }
     },
 
     clearForm: function() {
-        ['adm-uid', 'adm-nom', 'adm-email', 'adm-service'].forEach(id => {
+        ['adm-uid', 'adm-prenom', 'adm-nom', 'adm-email', 'adm-service'].forEach(id => {
             document.getElementById(id).value = "";
         });
     }
