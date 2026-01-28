@@ -1,78 +1,93 @@
 <!DOCTYPE html>
-<html lang="fr" class="bg-slate-900 h-full">
+<html lang="fr" class="bg-slate-950 h-full">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGC - Administration des Accès</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
-    <title>SGC - Panel Administration</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="p-8">
-    <header class="flex justify-between items-center mb-12">
+<body class="h-full flex flex-col p-8 font-sans">
+
+    <!-- Header Admin -->
+    <header class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
         <div>
-            <h1 class="text-3xl font-bold text-white">Console d'Administration</h1>
-            <p class="text-slate-400">Gestion des accès et des privilèges institutionnels</p>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Console d'Habilitation</h1>
+            <p class="text-slate-400 text-sm">Gestion du registre des agents et privilèges système</p>
         </div>
-        <a href="index.html" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-slate-700 transition">
-            <i class="fa-solid fa-arrow-left mr-2"></i>Retour au Service Courrier
-        </a>
+        <div class="flex gap-4">
+            <a href="index.html" class="bg-slate-800 text-slate-300 px-6 py-2 rounded-xl hover:bg-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Retour à l'Application
+            </a>
+        </div>
     </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Module : Création de compte (Gère l'accès à l'index) -->
-        <section class="bg-white p-6 rounded-3xl shadow-2xl">
-            <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-user-plus text-blue-600"></i> Nouvel Accès
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-10 overflow-hidden flex-1">
+        
+        <!-- Formulaire d'Habilitation -->
+        <section class="bg-white rounded-3xl p-8 shadow-2xl h-fit">
+            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-blue-600"></i> Enregistrer un Agent
             </h3>
-            <div class="space-y-4" id="admin-create-form">
-                <input type="text" id="adm-uid" placeholder="UID Firebase (copié depuis la console)" class="w-full p-3 bg-slate-50 rounded-xl border mb-2">
-                <input type="text" id="adm-service" placeholder="Service / Département" class="w-full p-3 bg-slate-50 rounded-xl border mb-2">
-                <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 rounded-xl border">
-                <input type="email" id="adm-email" placeholder="Email" class="w-full p-3 bg-slate-50 rounded-xl border">
-                <select id="adm-role" class="w-full p-3 bg-slate-50 rounded-xl border">
-                    <option value="agent">Agent (Accès Index standard)</option>
-                    <option value="admin">Administrateur (Accès Total)</option>
-                </select>
-                <button onclick="AdminApp.saveUserPermissions()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">
-                    Valider l'habilitation
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">UID Firebase (Console Auth)</label>
+                    <input type="text" id="adm-uid" placeholder="Coller l'UID ici" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-600 outline-none text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Prénom</label>
+                        <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Nom</label>
+                        <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Email Institutionnel</label>
+                    <input type="email" id="adm-email" placeholder="agent@posttrack.local" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Service / Département</label>
+                    <input type="text" id="adm-service" placeholder="ex: Service Courrier" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Niveau d'Accès</label>
+                    <select id="adm-role" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <option value="agent">Agent Standard</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+                <button onclick="AdminApp.saveUser()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 mt-4">
+                    Autoriser l'accès
                 </button>
             </div>
         </section>
 
-        <!-- Module : Liste des accès actifs -->
-        <section class="lg:col-span-2 bg-slate-800 p-6 rounded-3xl border border-slate-700">
-            <h3 class="text-lg font-bold text-white mb-6">Registre des Habilitations</h3>
-            <div id="users-registry" class="space-y-2">
-                <!-- Injecté par admin-logic.js -->
+        <!-- Registre des Accès Actifs -->
+        <section class="lg:col-span-2 flex flex-col overflow-hidden">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-emerald-500"></i> Registre des Habilitations
+            </h3>
+            <div id="users-registry" class="space-y-3 overflow-y-auto pr-2">
+                <!-- Les cartes agents s'injectent ici -->
+                <div class="text-slate-500 animate-pulse">Chargement du registre...</div>
             </div>
         </section>
     </main>
 
-    <!-- Scripts Firebase locaux -->
+    <!-- Console de Debug (Admin) -->
+    <div id="admin-logs" class="mt-6 bg-black rounded-2xl p-4 h-32 overflow-y-auto text-[10px] font-mono text-emerald-500 border border-slate-800">
+        <div>[SYSTEM] Console d'administration prête.</div>
+    </div>
+
+    <!-- Firebase Compat (Locaux) -->
     <script src="lib/firebase-app-compat.js"></script>
     <script src="lib/firebase-firestore-compat.js"></script>
     <script src="lib/firebase-auth-compat.js"></script>
     <script src="js/firebase-config.js"></script>
-    <!-- LE GARDIEN (Sécurité d'accès) -->
-    <script>
-        window.addEventListener('load', () => {
-            // On laisse 500ms pour que Firebase s'initialise bien
-            setTimeout(() => {
-                window.auth.onAuthStateChanged(user => {
-                    if (!user) { 
-                        window.location.href = 'index.html'; 
-                    } else {
-                        window.db.collection("users").doc(user.uid).get().then(doc => {
-                            if (!doc.exists || doc.data().role !== 'admin') {
-                                alert("Accès réservé aux administrateurs.");
-                                window.location.href = 'index.html';
-                            }
-                        });
-                    }
-                });
-            }, 500);
-        });
-    </script>
-    <!-- Logique spécifique admin -->
     <script src="js/admin-logic.js"></script>
 </body>
 </html>
