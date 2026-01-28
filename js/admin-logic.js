@@ -17,16 +17,26 @@ const AdminApp = {
 
     // Sécurité : Vérifie si l'utilisateur actuel est bien admin
     listenAuth: function() {
-        window.auth.onAuthStateChanged(user => {
-            if (!user) window.location.href = 'index.html';
+    window.auth.onAuthStateChanged(user => {
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            // On vérifie le rôle avec un délai de sécurité
             window.db.collection("users").doc(user.uid).get().then(doc => {
                 if (!doc.exists || doc.data().role !== 'admin') {
-                    alert("Accès refusé.");
+                    console.error("Accès refusé pour :", user.uid);
+                    alert("Accès réservé aux administrateurs.");
                     window.location.href = 'index.html';
+                } else {
+                    this.log("Accès Admin validé pour " + user.email);
                 }
+            }).catch(err => {
+                window.location.href = 'index.html';
             });
-        });
-    },
+        }
+    });
+},
+
 
     // Sauvegarde un utilisateur
     saveUser: function() {
