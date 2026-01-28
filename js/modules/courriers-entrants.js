@@ -1,98 +1,102 @@
 /**
  * Module : Courriers Entrants
- * Chemin : js/modules/courriers-entrants.js
+ * Gère l'affichage du tableau Bento et la saisie des plis reçus.
  */
 var App = App || {};
 App.modules = App.modules || {};
 
 App.modules.entrants = {
+    // 1. Point d'entrée (appelé par le Router)
     init: function() {
-        // Cette fonction est appelée par App.router.go('entrants')
-        const viewContainer = document.getElementById('entrants-content');
-        if (viewContainer) {
-            this.renderTable();
-            this.fetchData();
-        }
+        App.logger.log("Module Entrants : Initialisation du tableau...", "info");
+        this.renderTable();
+        this.fetchData();
     },
 
+    // 2. Construction de la structure du tableau
     renderTable: function() {
         const container = document.getElementById('entrants-content');
+        if (!container) return;
+
         container.innerHTML = `
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b border-slate-100 text-[10px] uppercase text-slate-400">
-                        <tr>
-                            <th class="p-4">Expéditeur</th>
-                            <th class="p-4">Objet</th>
-                            <th class="p-4">Service</th>
-                            <th class="p-4">Date</th>
-                            <th class="p-4">Statut</th>
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr class="text-[10px] uppercase tracking-widest text-slate-400">
+                            <th class="p-4 font-bold">Réception</th>
+                            <th class="p-4 font-bold">Expéditeur</th>
+                            <th class="p-4 font-bold">Objet</th>
+                            <th class="p-4 font-bold">Service Destinataire</th>
+                            <th class="p-4 font-bold">Statut</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body-entrants" class="text-sm divide-y divide-slate-50">
-                        <tr><td colspan="5" class="p-10 text-center italic">Chargement...</td></tr>
+                    <tbody id="table-body-entrants" class="divide-y divide-slate-50">
+                        <tr><td colspan="5" class="p-10 text-center text-slate-300 italic">Connexion à la base de données...</td></tr>
                     </tbody>
                 </table>
             </div>`;
     },
 
-    // ... (Le reste des fonctions fetchData, openForm et save reste identique)
-};
-
-// 3. Récupération des données en temps réel (Firestore)
+    // 3. Récupération des données et des couleurs de services
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
-        
-        // On récupère d'abord les services pour avoir les couleurs
-        window.db.collection("services").get().then(serviceSnap => {
-            const colors = {};
-            serviceSnap.forEach(s => colors[s.id] = s.data().color);
+        if (!tbody) return;
 
-            // On écoute les courriers
+        // Étape A : On récupère les services pour mapper les couleurs
+        window.db.collection("services").get().then(serviceSnap => {
+            const serviceMap = {};
+            serviceSnap.forEach(doc => {
+                serviceMap[doc.id] = doc.data().color;
+            });
+
+            // Étape B : On écoute les courriers en temps réel
             window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 if (snap.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">Aucun courrier enregistré.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400">Aucun courrier enregistré.</td></tr>';
                     return;
                 }
 
-                tbody.innerHTML = "";
+                let html = "";
                 snap.forEach(doc => {
                     const mail = doc.data();
-                    const dateStr = mail.timestamp ? new Date(mail.timestamp.seconds * 1000).toLocaleDateString('fr-BE') : '...';
-                    const serviceColor = colors[mail.service] || '#cbd5e1';
+                    const date = mail.timestamp ? new Date(mail.timestamp.seconds * 1000).toLocaleDateString('fr-BE') : '...';
+                    const color = serviceMap[mail.service] || '#cbd5e1';
 
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition group">
-                            <td class="p-4 text-xs font-mono text-slate-500">${dateStr}</td>
+                    html += `
+                        <tr class="hover:bg-slate-50/80 transition group">
+                            <td class="p-4 text-xs font-mono text-slate-400">${date}</td>
                             <td class="p-4 text-sm font-bold text-slate-700">${mail.expediteur}</td>
-                            <td class="p-4 text-sm text-slate-600">${mail.objet}</td>
+                            <td class="p-4 text-sm text-slate-500 max-w-xs truncate">${mail.objet}</td>
                             <td class="p-4">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-extrabold border" 
-                                      style="background: ${serviceColor}15; border-color: ${serviceColor}; color: ${serviceColor}">
+                                      style="background: ${color}15; border-color: ${color}; color: ${color}">
                                     ${mail.service}
                                 </span>
                             </td>
                             <td class="p-4">
-                                <span class="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 uppercase">
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 uppercase">
                                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span> ${mail.statut}
-                                </span>
+                                </div>
                             </td>
-                        </tr>
-                    `;
+                        </tr>`;
                 });
+                tbody.innerHTML = html;
             });
         });
     },
 
-    // 4. Ouverture du formulaire (Injecté via Templates)
+    // 4. Ouverture du formulaire (Injecté dans la Modal)
     openForm: function() {
         const modal = document.getElementById('modal-overlay');
         const content = document.getElementById('modal-content');
+        
+        // On utilise un template dédié
         content.innerHTML = App.templates.entryForm();
         
-        // Auto-remplissage des services dans le select du formulaire
+        // Remplissage du Select des services
         const select = document.getElementById('mail-dest-service');
         window.db.collection("services").get().then(snap => {
+            select.innerHTML = '<option value="">-- Sélectionner --</option>';
             snap.forEach(doc => {
                 select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
             });
@@ -101,7 +105,7 @@ App.modules.entrants = {
         modal.classList.replace('hidden', 'flex');
     },
 
-    // 5. Sauvegarde
+    // 5. Sauvegarde Firestore
     save: function() {
         const data = {
             expediteur: document.getElementById('mail-sender').value.trim(),
@@ -113,13 +117,13 @@ App.modules.entrants = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        if(!data.expediteur || !data.service) {
-            alert("Champs obligatoires manquants.");
+        if(!data.expediteur || !data.service || !data.objet) {
+            alert("Veuillez remplir tous les champs obligatoires.");
             return;
         }
 
         window.db.collection("courriers_entrants").add(data).then(() => {
-            App.logger.log("✅ Courrier enregistré.", "info");
+            App.logger.log("✅ Courrier enregistré avec succès.", "info");
             document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
         }).catch(err => App.logger.log("Erreur : " + err.message, "error"));
     }
