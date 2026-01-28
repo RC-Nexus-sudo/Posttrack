@@ -66,27 +66,26 @@ const AdminApp = {
     loadUsers: function() {
         const container = document.getElementById('users-registry');
         window.db.collection("users").onSnapshot(snap => {
-            container.innerHTML = "";
-            snap.forEach(doc => {
-                const u = doc.data();
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center group hover:border-blue-500 transition">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-blue-500">
-                                ${u.prenom.charAt(0)}${u.nom.charAt(0)}
-                            </div>
-                            <div>
-                                <p class="text-white font-bold text-sm">${u.prenom} ${u.nom}</p>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${u.service} • ${u.email}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-[9px] px-2 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">${u.role}</span>
-                            <button onclick="AdminApp.deleteUser('${doc.id}')" class="text-slate-600 hover:text-red-500 transition">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>`;
+            container.innerHTML += `
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center hover:border-slate-600 transition">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-blue-500 border border-slate-700">
+                ${u.prenom.charAt(0)}${u.nom.charAt(0)}
+            </div>
+            <div>
+                <p class="text-white font-bold text-sm">${u.prenom} ${u.nom}</p>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${u.service}</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="AdminApp.editUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-blue-900/30 text-blue-400 hover:bg-blue-600 hover:text-white transition">
+                <i class="fa-solid fa-pen-to-square text-xs"></i>
+            </button>
+            <button onclick="AdminApp.deleteUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-600 hover:text-white transition">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        </div>
+    </div>`;
             });
         });
     },
