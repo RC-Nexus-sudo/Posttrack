@@ -1,12 +1,21 @@
-const App = {
-    logger: {
-        log: (msg, type = 'info') => {
-            const container = document.getElementById('log-entries');
-            const time = new Date().toLocaleTimeString();
-            const color = type === 'error' ? 'text-red-400' : 'text-green-400';
-            container.innerHTML += `<div class="${color}">[${time}] [${type.toUpperCase()}] : ${msg}</div>`;
-            container.parentElement.scrollTop = container.parentElement.scrollHeight;
-        },
-        clear: () => document.getElementById('log-entries').innerHTML = ''
+var App = App || {}; 
+
+App.logger = {
+    log: function(msg, type = 'info') {
+        const container = document.getElementById('log-entries');
+        if (!container) return;
+        const time = new Date().toLocaleTimeString();
+        const colors = {
+            'info': 'text-emerald-400',
+            'error': 'text-red-400',
+            'debug': 'text-blue-400'
+        };
+        const color = colors[type] || 'text-white';
+        container.innerHTML += `<div class="${color} mb-1">[${time}] [${type.toUpperCase()}] : ${msg}</div>`;
+        container.scrollTop = container.scrollHeight;
+    },
+    clear: () => {
+        const entries = document.getElementById('log-entries');
+        if (entries) entries.innerHTML = '';
     }
 };
