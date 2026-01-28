@@ -37,19 +37,24 @@ App.auth = {
 
     // 3. Logique de connexion
     handleLogin: function() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
 
-        window.auth.signInWithEmailAndPassword(email, pass)
-            .then(() => {
-                App.logger.log("Connexion réussie : " + email, "info");
-                document.getElementById('modal-overlay').classList.add('hidden');
-            })
-            .catch(error => {
-                App.logger.log("Erreur : " + error.message, "error");
-                alert("Erreur de connexion : " + error.message);
-            });
-    },
+    window.auth.signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            App.logger.log("Connexion réussie : " + email, "info");
+            
+            // 1. Fermer la modal
+            document.getElementById('modal-overlay').classList.add('hidden');
+            
+            // 2. Charger le profil pour mettre à jour la Front Bar
+            this.loadUserProfile(userCredential.user); 
+        })
+        .catch(error => {
+            App.logger.log("Erreur : " + error.message, "error");
+            alert("Erreur : " + error.message);
+        });
+},
 
     // 4. Chargement du profil réel (Indispensable pour l'Admin)
     loadUserProfile: function(user) {
