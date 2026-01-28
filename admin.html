@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-slate-900 h-full">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
+    <title>SGC - Panel Administration</title>
+</head>
+<body class="p-8">
+    <header class="flex justify-between items-center mb-12">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Console d'Administration</h1>
+            <p class="text-slate-400">Gestion des accès et des privilèges institutionnels</p>
+        </div>
+        <a href="index.html" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-slate-700 transition">
+            <i class="fa-solid fa-arrow-left mr-2"></i>Retour au Service Courrier
+        </a>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Module : Création de compte (Gère l'accès à l'index) -->
+        <section class="bg-white p-6 rounded-3xl shadow-2xl">
+            <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-blue-600"></i> Nouvel Accès
+            </h3>
+            <div class="space-y-4" id="admin-create-form">
+                <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 rounded-xl border">
+                <input type="email" id="adm-email" placeholder="Email" class="w-full p-3 bg-slate-50 rounded-xl border">
+                <select id="adm-role" class="w-full p-3 bg-slate-50 rounded-xl border">
+                    <option value="agent">Agent (Accès Index standard)</option>
+                    <option value="admin">Administrateur (Accès Total)</option>
+                </select>
+                <button onclick="App.admin.createNewUser()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">
+                    Valider l'habilitation
+                </button>
+            </div>
+        </section>
+
+        <!-- Module : Liste des accès actifs -->
+        <section class="lg:col-span-2 bg-slate-800 p-6 rounded-3xl border border-slate-700">
+            <h3 class="text-lg font-bold text-white mb-6">Registre des Habilitations</h3>
+            <div id="users-registry" class="space-y-2">
+                <!-- Injecté par admin-logic.js -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts Firebase locaux -->
+    <script src="lib/firebase-app-compat.js"></script>
+    <script src="lib/firebase-firestore-compat.js"></script>
+    <script src="lib/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/admin-logic.js"></script>
+</body>
+</html>
