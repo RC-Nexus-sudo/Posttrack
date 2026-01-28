@@ -1,4 +1,4 @@
-var App = App || {}; 
+var App = App || { modules: {} };
 
 App.logger = {
     log: function(msg, type = 'info') {
