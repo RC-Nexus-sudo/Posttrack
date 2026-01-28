@@ -15,45 +15,53 @@ App.monitoring = {
         const container = document.getElementById('quick-stats');
         if (!container) return;
 
-        // On écoute en temps réel les collections pour mettre à jour les chiffres
-        this.listenCollection('courriers_entrants', 'stat-in');
-        this.listenCollection('courriers_sortants', 'stat-out');
-        // Emails simulerait une attente
-        this.updatePill('stat-mail', 0);
-
+        // Structure HTML des pastilles
         container.innerHTML = `
             <div class="flex gap-2">
-                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold">
+                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[11px] font-bold shadow-sm">
                     <i class="fa-solid fa-download text-blue-500"></i> Entrants: <span id="stat-in">0</span>
                 </div>
-                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold">
+                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[11px] font-bold shadow-sm">
                     <i class="fa-solid fa-upload text-emerald-500"></i> Sortants: <span id="stat-out">0</span>
                 </div>
-                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold">
-                    <i class="fa-solid fa-envelope text-amber-500"></i> Emails: <span id="stat-mail">0</span>
+                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[11px] font-bold shadow-sm">
+                    <i class="fa-solid fa-at text-amber-500"></i> Emails: <span id="stat-mail">0</span>
                 </div>
             </div>
         `;
+
+        // Lancement des écouteurs Firestore
+        this.listenCollection('courriers_entrants', 'stat-in');
+        this.listenCollection('courriers_sortants', 'stat-out');
+        // Pour les emails, on peut mettre une valeur fixe ou une autre collection
+        this.updatePillValue('stat-mail', 0);
     },
 
-    // Fonction générique d'écoute Firestore
+    // Fonction de mise à jour manuelle
+    updatePillValue: function(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (el) el.innerText = value;
+    },
+
+    // Écoute temps réel des collections
     listenCollection: function(collectionName, elementId) {
+        if (!window.db) return;
+        
         window.db.collection(collectionName).onSnapshot(snap => {
-            const count = snap.size;
-            const el = document.getElementById(elementId);
-            if (el) el.innerText = count;
-        }, err => App.logger.log("Erreur monitoring: " + err.message, "error"));
+            this.updatePillValue(elementId, snap.size);
+        }, err => {
+            App.logger.log("Erreur monitoring (" + collectionName + "): " + err.message, "error");
+        });
     },
 
-    // Gestion de la recherche globale
     initSearch: function() {
         const searchInput = document.querySelector('#monitoring-bar input');
         if (!searchInput) return;
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            App.logger.log("Recherche en cours: " + query, "debug");
-            // Ici, on pourra déclencher un filtre sur le tableau actuellement affiché
+            // Logique de filtrage à implémenter selon le module actif
         });
     }
 };
+
