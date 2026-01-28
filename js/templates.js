@@ -20,35 +20,59 @@ App.templates = {
 
     renderView: function(id, title) {
         // Dans App.templates.renderView (cas 'parametres')
-return `
-    <div class="animate-fade-in">
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">Administration & Paramètres</h2>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Formulaire de création d'utilisateur -->
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <h3 class="font-bold text-slate-700 mb-4 italic">Enregistrer un nouvel agent</h3>
-                <div class="space-y-4">
-                    <input type="text" id="new-user-name" placeholder="Nom complet" class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm">
-                    <input type="email" id="new-user-email" placeholder="Email institutionnel" class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm">
-                    <select id="new-user-role" class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm">
-                        <option value="agent">Agent (Lecture/Écriture)</option>
-                        <option value="admin">Administrateur (Gestion Totale)</option>
-                    </select>
-                    <button onclick="App.admin.createUser()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-black transition">Créer le compte</button>
+// 1. Structure de base commune (Titre + Zone de contenu)
+        let html = `
+            <div class="animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">${title}</h2>
+                    ${this.getActionBtn(id)}
                 </div>
-            </div>
+                <div id="${id}-content" class="grid grid-cols-1 gap-6">`;
 
-            <!-- Liste des utilisateurs connectés -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <h3 class="font-bold text-slate-700 mb-4 italic">Personnel autorisé</h3>
-                <div id="users-list" class="space-y-3">
-                    <p class="text-slate-400 text-sm">Chargement de la liste des agents...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
+        // 2. Contenu spécifique selon l'ID du module
+        if (id === 'dashboard') {
+            html += this.getDashboardLayout();
+        } else if (id === 'parametres') {
+            html += this.getAdminSettingsLayout();
+        } else {
+            // Vue par défaut pour les autres (Entrants, Sortants, eBox, etc.)
+            html += `
+                <div class="bg-white p-12 rounded-3xl border border-dashed border-slate-200 text-center">
+                    <i class="fa-solid fa-folder-open text-4xl text-slate-200 mb-4"></i>
+                    <p class="text-slate-400 italic">Le module ${title} est prêt à recevoir ses données Firestore.</p>
+                </div>`;
+        }
+
+        html += `</div></div>`;
+        return html;
+    },
+
+    // Génère le bouton "Ajouter" uniquement si nécessaire
+    getActionBtn: function(id) {
+        const modulesWithAdd = ['entrants', 'sortants', 'emails'];
+        if (modulesWithAdd.includes(id)) {
+            return `<button class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-blue-100">
+                        <i class="fa-solid fa-plus mr-2"></i>Nouveau
+                    </button>`;
+        }
+        return '';
+    },
+
+    getDashboardLayout: function() {
+        return `<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">Stats Courriers</div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">Derniers Emails</div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">Flux eBox</div>
+                </div>`;
+    },
+
+    getAdminSettingsLayout: function() {
+        return `
+            <div class="bg-amber-50 border border-amber-200 p-6 rounded-3xl">
+                <h3 class="text-amber-800 font-bold mb-2">Accès Administrateur</h3>
+                <p class="text-amber-700 text-sm">Pour gérer les accès de sécurité, veuillez vous rendre sur la 
+                   <a href="admin.html" class="underline font-bold">Page Admin Sécurisée</a>.</p>
+            </div>`;
     }
 };
 
