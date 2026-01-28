@@ -9,15 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="style.css">
 </head>
-
-    <!-- Firebase Local -->
-    <script src="lib/firebase-app-compat.js"></script>
-    <script src="lib/firebase-firestore-compat.js"></script>
-    <script src="lib/firebase-auth-compat.js"></script>
-
-    <!-- Votre logique -->
-    <script src="js/logger.js"></script>
-    
+   
 <body class="h-full overflow-hidden flex flex-col font-sans">
 
     <!-- Header (Login & Notifications) -->
@@ -119,15 +111,23 @@
 <script src="lib/firebase-firestore-compat.js"></script>
 <script src="lib/firebase-auth-compat.js"></script>
 
-<!-- 2. Initialisation de la logique App & Logs -->
-<script src="js/logger.js"></script>
-<script src="js/templates.js"></script>
+<!-- 1. Cœur du système (Initialise l'objet App et les logs) -->
+    <script src="js/logger.js"></script>
 
-<!-- 3. Configuration des services (dépend des libs et du logger) -->
-<script src="js/firebase-config.js"></script>
+    <!-- 2. Les données (Le Router contient la liste des modules) -->
+    <script src="js/router.js"></script>
 
-<!-- 4. Routage et modules (dépend des templates et de firebase) -->
-<script src="js/router.js"></script>
+    <!-- 3. Le visuel (Les templates utilisent les données du Router) -->
+    <script src="js/templates.js"></script>
+
+    <!-- 4. La connexion (Firebase utilise les logs) -->
+    <script src="js/firebase-config.js"></script>
+
+    <!-- 5. Les modules spécifiques -->
+    <script src="js/courriers-entrants.js"></script>
+
+    <!-- 6. Le Chef d'orchestre (Lance tout quand le DOM est prêt) -->
+    <script src="js/app.js"></script>
 
 </body>
 </html>
