@@ -15,23 +15,50 @@ App.templates = {
     },
 
     renderView: function(id, title) {
-        // Log de contrôle dans la console navigateur (F12)
-        console.log("Génération de la vue pour :", id);
-        
-        let body = "";
-        if (id === 'dashboard') {
-            body = `<div class="p-6 bg-white rounded-3xl border">Vue Dashboard Active</div>`;
-        } else if (id === 'parametres') {
-            body = `<div class="p-6 bg-amber-50 border border-amber-200 rounded-3xl text-amber-800">Vue Paramètres Active</div>`;
-        } else {
-            body = `<div class="p-6 bg-slate-50 border border-dashed rounded-3xl text-slate-400 font-italic italic">Module ${title} en attente de données Firestore.</div>`;
-        }
+    console.log("Génération de la vue pour :", id);
+    
+    let headerAction = ""; // Pour le bouton à droite du titre
+    let body = "";         // Pour le contenu Bento/Tableau
 
-        return `
-            <div class="animate-fade-in">
-                <h2 class="text-2xl font-bold text-slate-800 mb-6">${title}</h2>
-                <div id="${id}-content">${body}</div>
-            </div>`;
+    // --- MODULE : DASHBOARD ---
+    if (id === 'dashboard') {
+        body = `<div class="p-6 bg-white rounded-3xl border">Vue Dashboard Active</div>`;
+    } 
+    
+    // --- MODULE : COURRIERS ENTRANTS ---
+    else if (id === 'entrants') {
+        // 1. On ajoute le bouton "Nouveau" dans le Header
+        headerAction = `
+            <button onclick="App.modules.entrants.openForm()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition">
+                <i class="fa-solid fa-plus mr-2"></i> Nouveau Courrier
+            </button>`;
+        
+        // 2. Le body est initialement vide, car App.modules.entrants.fetchData() le remplira
+        body = `<div class="p-4 text-slate-400 italic text-sm">Initialisation du tableau...</div>`;
     }
-};
+
+        // --- MODULE : ADMINISTRATION ---
+    else if (id === 'parametres') {
+        body = `<div class="p-6 bg-amber-50 border border-amber-200 rounded-3xl text-amber-800 text-sm">
+                    Accès Admin externe : <a href="admin.html" class="font-bold underline">Console de sécurité</a>
+                </div>`;
+    } 
+    
+    else {
+        body = `<div class="p-6 bg-slate-50 border border-dashed rounded-3xl text-slate-400 italic font-medium">
+                    Module ${title} en attente de données Firestore.
+                </div>`;
+    }
+
+    // Structure finale retournée
+    return `
+        <div class="animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">${title}</h2>
+                <div id="module-header-action">${headerAction}</div>
+            </div>
+            <div id="${id}-content">${body}</div>
+        </div>`;
+}
+
 
