@@ -48,31 +48,38 @@ const AdminApp = {
 
     // 4. ENREGISTREMENT / MISE À JOUR
     saveUser: function() {
-        const uid = document.getElementById('adm-uid').value.trim();
-        const data = {
-            prenom: document.getElementById('adm-prenom').value.trim(),
-            nom: document.getElementById('adm-nom').value.trim(),
-            email: document.getElementById('adm-email').value.trim(),
-            service: document.getElementById('adm-service').value.trim(),
-            role: document.getElementById('adm-role').value,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+    // Si le champ est vide (nouvel agent), on crée un ID basé sur le matricule/email
+    // Sinon, on garde l'ID existant (mode édition)
+    let uid = document.getElementById('adm-uid').value.trim();
+    
+    const data = {
+        prenom: document.getElementById('adm-prenom').value.trim(),
+        nom: document.getElementById('adm-nom').value.trim(),
+        email: document.getElementById('adm-email').value.trim().toLowerCase(),
+        service: document.getElementById('adm-service').value.trim(),
+        role: document.getElementById('adm-role').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-        if (!uid || !data.nom || !data.prenom || !data.email) {
-            alert("Tous les champs sont obligatoires (UID, Nom, Prénom, Email, Service)");
-            return;
-        }
+    if (!data.nom || !data.email) {
+        alert("Le nom et l'email sont obligatoires.");
+        return;
+    }
 
-        window.db.collection("users").doc(uid).set(data, { merge: true })
-            .then(() => {
-                this.log("✅ Habilitation enregistrée : " + data.email);
-                this.clearForm();
-            })
-            .catch(err => {
-                this.log("❌ Erreur sauvegarde : " + err.message);
-                alert("Erreur : " + err.message);
-            });
-    },
+    // LOGIQUE D'ID AUTOMATIQUE : 
+    // Si pas d'UID (création), on utilise l'email comme ID de document
+    // C'est beaucoup plus simple pour gérer les accès !
+    if (!uid) {
+        uid = data.email; 
+    }
+
+    window.db.collection("users").doc(uid).set(data, { merge: true })
+        .then(() => {
+            this.log("✅ Agent enregistré avec l'ID : " + uid);
+            this.clearForm();
+        })
+        .catch(err => this.log("❌ Erreur : " + err.message));
+},
 
     // 5. CHARGEMENT DU REGISTRE EN TEMPS RÉEL
     loadUsers: function() {
