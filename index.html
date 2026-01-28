@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGC - Gestion Courrier</title>
-    <!-- Tailwind CSS via CDN -->
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="h-full overflow-hidden flex flex-col font-sans">
@@ -14,73 +14,96 @@
     <!-- Header (Login & Notifications) -->
     <header class="h-16 bg-white border-b flex items-center justify-between px-6 z-20">
         <div class="flex items-center gap-4">
-            <img src="https://via.placeholder.com" class="rounded-full" alt="Logo Inst.">
-            <h1 class="font-bold text-slate-800">SGC Institution</h1>
-        </div>
-        <div class="flex items-center gap-6">
-            <div id="notif-bell" class="relative cursor-pointer">
-                <i class="fa-regular fa-bell text-xl text-slate-600"></i>
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">3</span>
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+                <i class="fa-solid fa-envelopes-bulk"></i>
             </div>
-            <div id="auth-zone" class="flex items-center gap-2 border-l pl-6">
-                <button onclick="App.auth.login()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700 transition">Connexion</button>
+            <h1 class="font-bold text-slate-800 tracking-tight">SGC Institution</h1>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div id="notif-bell" class="relative cursor-pointer hover:text-blue-600 transition">
+                <i class="fa-regular fa-bell text-xl text-slate-600"></i>
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full border-2 border-white">0</span>
+            </div>
+            <div id="auth-zone" class="border-l pl-6">
+                <button onclick="App.auth.login()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition shadow-sm">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>Connexion
+                </button>
             </div>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col p-4 gap-2">
-            <nav id="sidebar-nav" class="flex-1">
-                <!-- Généré par App.templates -->
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col p-4">
+            <nav id="sidebar-nav" class="flex-1 space-y-1">
+                <!-- Injecté dynamiquement par App.templates.sidebar() -->
             </nav>
         </aside>
 
         <!-- Main Workspace -->
         <main class="flex-1 flex flex-col relative overflow-hidden">
             
-            <!-- Front Bar (User Info & Status) -->
-            <div id="front-bar" class="bg-white px-6 py-3 border-b flex justify-between items-center text-sm shadow-sm">
-                <!-- Dynamique -->
+            <!-- Front Bar (Statut Serveur & Profil) -->
+            <div id="front-bar" class="bg-white px-6 py-3 border-b flex justify-between items-center text-xs text-slate-500 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <span id="server-status" class="flex items-center gap-1.5 font-medium">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Serveur Opérationnel
+                    </span>
+                    <span id="current-datetime" class="border-l pl-4 font-mono uppercase"></span>
+                </div>
+                <div id="user-profile-summary" class="flex items-center gap-3">
+                    <!-- Contenu dynamique : Nom, Service, Logo rond -->
+                </div>
             </div>
 
-            <!-- Monitoring Bar (Stats & Search) -->
-            <div id="monitoring-bar" class="p-4 flex gap-4 items-center bg-slate-50 border-b">
-                <!-- Widgets stats dynamiques -->
+            <!-- Monitoring Bar (Statistiques Rapides) -->
+            <div id="monitoring-bar" class="p-4 bg-slate-50 border-b flex flex-wrap gap-4 items-center">
+                <!-- Zone de recherche globale -->
+                <div class="relative flex-1 max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Rechercher un courrier, un email..." class="w-full pl-11 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition">
+                </div>
+                <div id="quick-stats" class="flex gap-3">
+                    <!-- Injecté dynamiquement (Pills de stats) -->
+                </div>
             </div>
 
             <!-- Main Content Area -->
-            <section id="app-view" class="flex-1 p-6 overflow-y-auto">
-                <!-- Les tableaux/modules s'injectent ici -->
+            <section id="app-view" class="flex-1 p-6 overflow-y-auto bg-[#F1F5F9]">
+                <!-- Les widgets Bento et formulaires s'injectent ici via le Router -->
             </section>
 
-            <!-- Console Logs (Fixée en bas) -->
-            <div id="debug-console" class="h-32 bg-black text-green-400 text-xs p-2 overflow-y-auto font-mono opacity-90">
-                <div class="border-b border-green-900 pb-1 mb-1 flex justify-between uppercase">
-                    <span>System Logs</span>
-                    <button onclick="App.logger.clear()" class="hover:underline">Vider</button>
+            <!-- Console Logs -->
+            <footer id="debug-console" class="h-32 bg-slate-950 text-emerald-400 text-[11px] p-3 overflow-y-auto font-mono border-t border-slate-800">
+                <div class="flex justify-between items-center border-b border-emerald-900 pb-1 mb-2 opacity-50 uppercase tracking-widest">
+                    <span><i class="fa-solid fa-terminal mr-2"></i>System Console</span>
+                    <button onclick="App.logger.clear()" class="hover:text-white transition">Effacer [x]</button>
                 </div>
-                <div id="log-entries"></div>
-            </div>
+                <div id="log-entries" class="space-y-0.5"></div>
+            </footer>
         </main>
     </div>
 
-    <!-- Overlay pour formulaires -->
-    <div id="modal-overlay" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-2xl p-8 shadow-2xl scale-95 transition-transform" id="modal-content"></div>
+    <!-- Modal / Form Overlay -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 backdrop-blur-sm px-4">
+        <div id="modal-content" class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl transform transition-all">
+            <!-- Injecté par App.templates.modal() -->
+        </div>
     </div>
 
-    <!-- Chargement des scripts Firebase (Version 9+ compatible) -->
+    <!-- Firebase SDK (Compat mode) -->
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
 
-    <!-- Scripts de l'application -->
+    <!-- Application Logic -->
     <script src="js/logger.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/router.js"></script>
-    <script src="js/courriers-entrants.js"></script>
     <script src="js/firebase-config.js"></script>
+    <script src="js/courriers-entrants.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
+
