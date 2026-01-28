@@ -57,11 +57,5 @@ App.router = {
     loadModuleData: function(routeId) {
         // Logique pour appeler les fonctions de courriers-entrants.js, etc.
         App.logger.log(`Initialisation des données pour [${routeId}]...`, 'debug');
-    }
-};
 
-// Initialisation au chargement
-window.addEventListener('DOMContentLoaded', () => {
-    // Par défaut, on affiche le dashboard
-    App.router.go('dashboard');
 });
