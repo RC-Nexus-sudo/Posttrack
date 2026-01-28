@@ -39,9 +39,20 @@ App.router = {
     },
 
     updateSidebarUI: function(activeId) {
-        const nav = document.getElementById('sidebar-nav');
-        // On pourrait ici ajouter une classe "bg-blue-600" au bouton actif
-    },
+        updateSidebarUI: function(activeId) {
+    // On retire le style actif de TOUS les boutons de la sidebar
+    document.querySelectorAll('#sidebar-nav button').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+        btn.classList.add('text-slate-400');
+    });
+
+    // On l'ajoute au bouton correspondant au module actuel
+    const activeBtn = document.getElementById(`btn-${activeId}`);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+    }
+},
 
     loadModuleData: function(routeId) {
         // Logique pour appeler les fonctions de courriers-entrants.js, etc.
