@@ -23,14 +23,14 @@ App.router = {
 
             // 2. Injection du template via App.templates
             const mainDisplay = document.getElementById('app-view');
+            if (!mainDisplay) throw new Error("Conteneur 'app-view' introuvable.");
             
-            // On génère une vue de base (Dashboard ou Tableaux)
             mainDisplay.innerHTML = App.templates.renderView(routeId, view.title);
 
             // 3. Log de l'action
             App.logger.log(`Navigation vers : ${view.title}`, 'info');
 
-            // 4. (Optionnel) Charger les données Firebase spécifiques au module
+            // 4. Charger les données Firebase spécifiques au module
             this.loadModuleData(routeId);
 
         } catch (error) {
@@ -39,23 +39,23 @@ App.router = {
     },
 
     updateSidebarUI: function(activeId) {
-        updateSidebarUI: function(activeId) {
-    // On retire le style actif de TOUS les boutons de la sidebar
-    document.querySelectorAll('#sidebar-nav button').forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
-        btn.classList.add('text-slate-400');
-    });
+        // On retire le style actif de TOUS les boutons de la sidebar
+        document.querySelectorAll('#sidebar-nav button').forEach(btn => {
+            btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+            btn.classList.add('text-slate-400');
+        });
 
-    // On l'ajoute au bouton correspondant au module actuel
-    const activeBtn = document.getElementById(`btn-${activeId}`);
-    if (activeBtn) {
-        activeBtn.classList.remove('text-slate-400');
-        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
-    }
-},
+        // On l'ajoute au bouton correspondant au module actuel
+        const activeBtn = document.getElementById(`btn-${activeId}`);
+        if (activeBtn) {
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+        }
+    },
 
     loadModuleData: function(routeId) {
-        // Logique pour appeler les fonctions de courriers-entrants.js, etc.
+        // Logique pour appeler les fonctions spécifiques aux modules
         App.logger.log(`Initialisation des données pour [${routeId}]...`, 'debug');
+    }
+};
 
-});
