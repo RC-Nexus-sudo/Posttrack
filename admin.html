@@ -50,6 +50,27 @@
     <script src="lib/firebase-firestore-compat.js"></script>
     <script src="lib/firebase-auth-compat.js"></script>
     <script src="js/firebase-config.js"></script>
+    <!-- LE GARDIEN (Sécurité d'accès) -->
+    <script>
+        window.addEventListener('load', () => {
+            // On laisse 500ms pour que Firebase s'initialise bien
+            setTimeout(() => {
+                window.auth.onAuthStateChanged(user => {
+                    if (!user) { 
+                        window.location.href = 'index.html'; 
+                    } else {
+                        window.db.collection("users").doc(user.uid).get().then(doc => {
+                            if (!doc.exists || doc.data().role !== 'admin') {
+                                alert("Accès réservé aux administrateurs.");
+                                window.location.href = 'index.html';
+                            }
+                        });
+                    }
+                });
+            }, 500);
+        });
+    </script>
+    <!-- Logique spécifique admin -->
     <script src="js/admin-logic.js"></script>
 </body>
 </html>
