@@ -33,69 +33,82 @@
         </button>
     </header>
 
-    <!-- Zone principale : Scrollable, ne doit pas être masquée par la console -->
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0"> <!-- min-h-0 permet le scroll interne -->
+    <!-- Zone principale : Anti-chevauchement -->
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0 overflow-hidden">
         
-        <!-- Formulaire d'Habilitation -->
-        <section class="bg-white rounded-3xl p-6 shadow-2xl overflow-y-auto h-fit lg:max-h-full">
-            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-user-shield text-blue-600"></i> Enregistrer un Agent
-            </h3>
-            <div class="space-y-4">
-                <!-- Tes champs de formulaire (adm-uid, adm-prenom, etc.) -->
-                <div>
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Référence Système (Auto)</label>
-                    <input type="text" id="adm-uid" placeholder="Généré automatiquement" readonly 
-                       class="w-full p-3 bg-slate-100 border rounded-xl text-xs text-slate-500 cursor-not-allowed">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
-                    <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
-                </div>
-                <input type="email" id="adm-email" placeholder="Email institutionnel" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
-                <input type="text" id="adm-service" placeholder="Service / Département" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
-                <select id="adm-role" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
-                    <option value="agent">Agent Standard</option>
-                    <option value="admin">Administrateur</option>
-                </select>
-                <button onclick="AdminApp.saveUser()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 mt-4">
-                    Autoriser l'accès
-                </button>
-            </div>
-        </section>
+        <!-- COLONNE GAUCHE : Formulaires (Scrollable si besoin) -->
+        <div class="flex flex-col gap-6 overflow-y-auto pr-2">
+            
+            <!-- 1. Formulaire d'Habilitation -->
+            <section class="bg-white rounded-3xl p-6 shadow-2xl flex-shrink-0">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-blue-600"></i> Enregistrer un Agent
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Référence Système (Auto)</label>
+                        <input type="text" id="adm-uid" placeholder="Généré automatiquement" readonly 
+                           class="w-full p-3 bg-slate-100 border rounded-xl text-xs text-slate-500 cursor-not-allowed">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+                        <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+                    </div>
+                    <input type="email" id="adm-email" placeholder="Email institutionnel" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+                    
+                    <!-- SELECT DYNAMIQUE POUR LES SERVICES -->
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Département Affecté</label>
+                        <select id="adm-service" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="">-- Chargement des services... --</option>
+                        </select>
+                    </div>
 
-        <!-- Registre des Accès Actifs -->
-        <section class="lg:col-span-2 flex flex-col min-h-0">
+                    <select id="adm-role" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+                        <option value="agent">Agent Standard</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                    <button onclick="AdminApp.saveUser()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 mt-2">
+                        Autoriser l'accès
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2. Gestion des Services (Nouveau Bloc intégré) -->
+            <section class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex-shrink-0">
+                <h3 class="text-white font-bold mb-4 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-amber-500"></i> Configurer les Services
+                </h3>
+                <div class="flex flex-col gap-3">
+                    <input type="text" id="new-service-name" placeholder="Nom (ex: Finances)" class="bg-slate-800 border-none rounded-xl p-3 text-white text-sm outline-none focus:ring-1 focus:ring-amber-500">
+                    <div class="flex gap-2">
+                        <input type="color" id="new-service-color" class="h-10 w-14 bg-slate-800 border-none rounded-lg p-1 cursor-pointer" value="#3b82f6">
+                        <button onclick="AdminApp.addService()" class="flex-1 bg-amber-600 text-white rounded-xl font-bold text-xs hover:bg-amber-700 transition uppercase tracking-wider">
+                            Ajouter le service
+                        </button>
+                    </div>
+                    <div id="services-list-admin" class="flex flex-wrap gap-2 mt-4">
+                        <!-- Liste des services avec badges de couleur -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- COLONNE DROITE : Registre (Scrollable séparément) -->
+        <section class="lg:col-span-2 flex flex-col min-h-0 bg-slate-900/50 rounded-3xl p-6 border border-slate-800/50">
             <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <i class="fa-solid fa-list-check text-emerald-500"></i> Registre des Habilitations
             </h3>
             <div id="users-registry" class="space-y-3 overflow-y-auto pr-2 scrollbar-thin">
                 <!-- Les cartes agents s'injectent ici -->
-                <div class="text-slate-500">Chargement...</div>
+                <div class="text-slate-500 animate-pulse text-sm italic">Initialisation du flux Firestore...</div>
             </div>
         </section>
-
-        <!-- Gestion des services -->
-        <section class="mt-10 bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-    <h3 class="text-white font-bold mb-6 flex items-center gap-2">
-        <i class="fa-solid fa-tags text-amber-500"></i> Gestion des Services & Couleurs
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <input type="text" id="new-service-name" placeholder="Nom du service (ex: RH)" class="bg-slate-800 border-none rounded-xl p-3 text-white text-sm">
-        <div class="flex gap-2">
-            <input type="color" id="new-service-color" class="h-11 w-20 bg-slate-800 border-none rounded-xl p-1 cursor-pointer" value="#3b82f6">
-            <button onclick="AdminApp.addService()" class="flex-1 bg-amber-600 text-white rounded-xl font-bold text-sm hover:bg-amber-700 transition">Ajouter</button>
-        </div>
-    </div>
-    <div id="services-list-admin" class="flex flex-wrap gap-2">
-        <!-- Liste des services avec badges de couleur -->
-    </div>
-</section>
     </main>
 
-    <!-- Console de Debug (Fixée en bas, ne réduit pas l'espace du main) -->
+    <!-- Console de Debug (Vraiment en bas) -->
     <footer id="admin-logs" class="mt-6 flex-shrink-0 bg-black rounded-2xl p-4 h-28 overflow-y-auto text-[10px] font-mono text-emerald-500 border border-slate-800">
-    <div>[SYSTEM] Console d'administration prête.</div>
+        <div>[SYSTEM] Console d'administration prête.</div>
     </footer>
 
     <!-- Firebase Compat -->
