@@ -4,6 +4,8 @@
  */
 
 // Vos informations de connexion (à récupérer sur console.firebase.google.com)
+// js/firebase-config.js
+
 const firebaseConfig = {
     apiKey: "AIzaSyBv7NP2Mxt8QslKpVl6Ik4Uk76DGoIP1ds",
     authDomain: "posttrack-fcb9b.firebaseapp.com",
@@ -13,23 +15,32 @@ const firebaseConfig = {
     appId: "1:298056968036:web:7b76259843af13fc2c7c71"
 };
 
-// Initialisation de Firebase
-try {
-    firebase.initializeApp(firebaseConfig);
-    
-    // Initialisation des services
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+// Fonction d'initialisation sécurisée
+function initFirebase() {
+    try {
+        // Vérification si le coeur de Firebase est chargé
+        if (typeof firebase === 'undefined') throw new Error("Bibliothèque core manquante");
 
-    // Exportation globale pour les autres modules (.js)
-    window.db = db;
-    window.auth = auth;
+        firebase.initializeApp(firebaseConfig);
+        
+        // Vérification si Firestore est disponible (le fichier local peut mettre du temps)
+        if (typeof firebase.firestore !== 'function') throw new Error("Module Firestore non détecté");
 
-    App.logger.log("✅ Connexion Firebase établie avec succès", "info");
-} catch (error) {
-    App.logger.log("❌ Erreur d'initialisation Firebase : " + error.message, "error");
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+
+        // Persistance
+        window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        App.logger.log("✅ Firebase & Firestore (Locaux) connectés", "info");
+    } catch (error) {
+        App.logger.log("❌ Erreur critique : " + error.message, "error");
+        // Si Firestore n'est pas encore prêt, on réessaie dans 200ms
+        if (error.message.includes("Firestore")) {
+            setTimeout(initFirebase, 200);
+        }
+    }
 }
 
-// Persistance de la session (reste connecté même si on ferme le navigateur)
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .catch((error) => App.logger.log("Système : Erreur de persistance", "error"));
+initFirebase();
+
