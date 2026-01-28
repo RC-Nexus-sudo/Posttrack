@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGC - Gestion Courrier</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-full overflow-hidden flex flex-col font-sans">
+
+    <!-- Header (Login & Notifications) -->
+    <header class="h-16 bg-white border-b flex items-center justify-between px-6 z-20">
+        <div class="flex items-center gap-4">
+            <img src="https://via.placeholder.com" class="rounded-full" alt="Logo Inst.">
+            <h1 class="font-bold text-slate-800">SGC Institution</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <div id="notif-bell" class="relative cursor-pointer">
+                <i class="fa-regular fa-bell text-xl text-slate-600"></i>
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">3</span>
+            </div>
+            <div id="auth-zone" class="flex items-center gap-2 border-l pl-6">
+                <button onclick="App.auth.login()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700 transition">Connexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col p-4 gap-2">
+            <nav id="sidebar-nav" class="flex-1">
+                <!-- Généré par App.templates -->
+            </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col relative overflow-hidden">
+            
+            <!-- Front Bar (User Info & Status) -->
+            <div id="front-bar" class="bg-white px-6 py-3 border-b flex justify-between items-center text-sm shadow-sm">
+                <!-- Dynamique -->
+            </div>
+
+            <!-- Monitoring Bar (Stats & Search) -->
+            <div id="monitoring-bar" class="p-4 flex gap-4 items-center bg-slate-50 border-b">
+                <!-- Widgets stats dynamiques -->
+            </div>
+
+            <!-- Main Content Area -->
+            <section id="app-view" class="flex-1 p-6 overflow-y-auto">
+                <!-- Les tableaux/modules s'injectent ici -->
+            </section>
+
+            <!-- Console Logs (Fixée en bas) -->
+            <div id="debug-console" class="h-32 bg-black text-green-400 text-xs p-2 overflow-y-auto font-mono opacity-90">
+                <div class="border-b border-green-900 pb-1 mb-1 flex justify-between uppercase">
+                    <span>System Logs</span>
+                    <button onclick="App.logger.clear()" class="hover:underline">Vider</button>
+                </div>
+                <div id="log-entries"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay pour formulaires -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-8 shadow-2xl scale-95 transition-transform" id="modal-content"></div>
+    </div>
+
+    <!-- Chargement des scripts Firebase (Version 9+ compatible) -->
+    <script src="https://www.gstatic.com"></script>
+    <script src="https://www.gstatic.com"></script>
+    <script src="https://www.gstatic.com"></script>
+
+    <!-- Scripts de l'application -->
+    <script src="js/logger.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/courriers-entrants.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
