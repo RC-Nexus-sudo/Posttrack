@@ -1,3 +1,4 @@
+var App = App || { modules: {} };
 /**
  * Router Module - Gestion de la navigation SPA
  */
