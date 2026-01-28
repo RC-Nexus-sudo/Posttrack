@@ -1,4 +1,3 @@
-var App = App || { modules: {} };
 /**
  * Router Module - Gestion de la navigation SPA
  */
@@ -10,12 +9,19 @@ App.router = {
         'sortants': { title: 'Courriers Sortants', icon: 'fa-paper-plane' },
         'emails': { title: 'Emails Boite Info', icon: 'fa-envelope' },
         'ebox': { title: 'eBox Institutionnelle', icon: 'fa-box-archive' },
-        'parametres': { title: 'Paramètres Système', icon: 'fa-gears' }
+        'parametres': { title: 'Administration', icon: 'fa-gears' }
     },
 
     // Fonction principale pour changer de vue
     go: function(routeId) {
         try {
+            // --- CAS SPÉCIFIQUE : ADMINISTRATION ---
+            if (routeId === 'parametres') {
+                App.logger.log("Accès Admin : Redirection vers admin.html", "info");
+                window.location.href = 'admin.html';
+                return; // On arrête l'exécution ici
+            }
+
             const view = this.routes[routeId];
             if (!view) throw new Error(`Route "${routeId}" non définie.`);
 
@@ -31,7 +37,7 @@ App.router = {
             // 3. Log de l'action
             App.logger.log(`Navigation vers : ${view.title}`, 'info');
 
-            // 4. Charger les données Firebase spécifiques au module
+            // 4. Charger les données spécifiques au module
             this.loadModuleData(routeId);
 
         } catch (error) {
@@ -40,13 +46,13 @@ App.router = {
     },
 
     updateSidebarUI: function(activeId) {
-        // On retire le style actif de TOUS les boutons de la sidebar
+        // On retire le style actif de TOUS les boutons
         document.querySelectorAll('#sidebar-nav button').forEach(btn => {
             btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
             btn.classList.add('text-slate-400');
         });
 
-        // On l'ajoute au bouton correspondant au module actuel
+        // On l'ajoute au bouton correspondant
         const activeBtn = document.getElementById(`btn-${activeId}`);
         if (activeBtn) {
             activeBtn.classList.remove('text-slate-400');
@@ -55,8 +61,11 @@ App.router = {
     },
 
     loadModuleData: function(routeId) {
-        // Logique pour appeler les fonctions spécifiques aux modules
-        App.logger.log(`Initialisation des données pour [${routeId}]...`, 'debug');
+        // Logique pour appeler les fonctions spécifiques (ex: App.modules.entrants.init())
+        if (App.modules && App.modules[routeId] && App.modules[routeId].init) {
+            App.modules[routeId].init();
+        }
     }
 };
+
 
