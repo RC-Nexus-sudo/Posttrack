@@ -88,37 +88,51 @@ const AdminApp = {
 
     // 5. CHARGEMENT DU REGISTRE AGENTS
     loadUsers: function() {
-        const container = document.getElementById('users-registry');
-        if (!container) return;
+    const container = document.getElementById('users-registry');
+    if (!container) return;
 
-        window.db.collection("users").orderBy("nom", "asc").onSnapshot(snap => {
-            if (snap.empty) {
-                container.innerHTML = `<div class="text-slate-500 italic p-6 border border-slate-800 rounded-2xl text-center bg-slate-900/30">Aucun agent dans le registre.</div>`;
-                return;
-            }
-            let html = "";
-            snap.forEach(doc => {
-                const u = doc.data();
-                const initiales = ((u.prenom?.charAt(0) || '') + (u.nom?.charAt(0) || '')).toUpperCase();
-                html += `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center hover:border-blue-500/50 transition-all mb-3 group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-blue-500 border border-slate-700 uppercase text-xs">${initiales}</div>
-                            <div>
-                                <p class="text-white font-bold text-sm leading-tight">${u.prenom} ${u.nom}</p>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">${u.service} • ${u.email}</p>
-                            </div>
+    window.db.collection("users").orderBy("nom", "asc").onSnapshot(snap => {
+        // Si la collection est vide
+        if (snap.empty) {
+            container.innerHTML = `<div class="text-slate-500 italic p-6 border border-slate-800 rounded-2xl text-center bg-slate-900/30">Aucun agent dans le registre.</div>`;
+            return;
+        }
+
+        let html = "";
+        snap.forEach(doc => {
+            const u = doc.data();
+            
+            // SÉCURITÉ : On vérifie que nom et prénom existent avant de prendre l'initiale
+            const pFirst = (u.prenom && u.prenom.length > 0) ? u.prenom.charAt(0) : '?';
+            const nFirst = (u.nom && u.nom.length > 0) ? u.nom.charAt(0) : '?';
+            const initiales = (pFirst + nFirst).toUpperCase();
+            
+            html += `
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center hover:border-blue-500/50 transition-all mb-3 group shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-blue-500 border border-slate-700 uppercase text-xs">
+                            ${initiales}
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[9px] px-2 py-1 rounded bg-slate-950 text-slate-400 border border-slate-800 mr-2 uppercase">${u.role}</span>
-                            <button onclick="AdminApp.editUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
-                            <button onclick="AdminApp.deleteUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        <div>
+                            <p class="text-white font-bold text-sm leading-tight">${u.prenom || 'Inconnu'} ${u.nom || 'Agent'}</p>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">${u.service || 'Sans service'} • ${u.email || 'Pas d\'email'}</p>
                         </div>
-                    </div>`;
-            });
-            container.innerHTML = html;
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] px-2 py-1 rounded bg-slate-950 text-slate-400 border border-slate-800 mr-2 uppercase">${u.role || 'agent'}</span>
+                        <button onclick="AdminApp.editUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                        <button onclick="AdminApp.deleteUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>`;
         });
-    },
+        container.innerHTML = html;
+        this.log("Registre mis à jour.");
+    }, err => {
+        this.log("ERREUR de flux : " + err.message);
+        container.innerHTML = `<div class="text-red-500 p-4 text-xs bg-red-500/10 rounded-xl">Erreur de lecture Firestore : ${err.message}</div>`;
+    });
+},
+
 
     // 6. ÉDITION AGENT
     editUser: function(id) {
