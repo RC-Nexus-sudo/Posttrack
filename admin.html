@@ -74,6 +74,23 @@
                 <div class="text-slate-500">Chargement...</div>
             </div>
         </section>
+
+        <!-- Gestion des services -->
+        <section class="mt-10 bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+    <h3 class="text-white font-bold mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-tags text-amber-500"></i> Gestion des Services & Couleurs
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <input type="text" id="new-service-name" placeholder="Nom du service (ex: RH)" class="bg-slate-800 border-none rounded-xl p-3 text-white text-sm">
+        <div class="flex gap-2">
+            <input type="color" id="new-service-color" class="h-11 w-20 bg-slate-800 border-none rounded-xl p-1 cursor-pointer" value="#3b82f6">
+            <button onclick="AdminApp.addService()" class="flex-1 bg-amber-600 text-white rounded-xl font-bold text-sm hover:bg-amber-700 transition">Ajouter</button>
+        </div>
+    </div>
+    <div id="services-list-admin" class="flex flex-wrap gap-2">
+        <!-- Liste des services avec badges de couleur -->
+    </div>
+</section>
     </main>
 
     <!-- Console de Debug (Fixée en bas, ne réduit pas l'espace du main) -->
