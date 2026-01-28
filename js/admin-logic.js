@@ -171,20 +171,29 @@ const AdminApp = {
 };
 
 // 9 AJOUTER UN SERVICE
-addService: function() {
-    const name = document.getElementById('new-service-name').value.trim();
-    const color = document.getElementById('new-service-color').value;
-    
-    if (!name) return alert("Nom requis");
+AdminApp.addService = function() {
+    const nameInput = document.getElementById('new-service-name');
+    const colorInput = document.getElementById('new-service-color');
+    const name = nameInput.value.trim();
+    const color = colorInput.value;
 
+    if (!name) {
+        alert("Veuillez saisir un nom de service.");
+        return;
+    }
+
+    // On utilise le nom comme ID de document pour une gestion simplifiée
     window.db.collection("services").doc(name).set({
         name: name,
-        color: color
-    }).then(() => {
-        this.log(`Service ${name} ajouté.`);
-        document.getElementById('new-service-name').value = "";
-    });
-},
+        color: color,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true })
+    .then(() => {
+        this.log(`✅ Service "${name}" enregistré.`);
+        nameInput.value = ""; // Reset du champ
+    })
+    .catch(err => this.log("❌ Erreur service : " + err.message));
+};
 
 // 10. CHARGER LES SERVICES DANS L'ADMIN ET DANS LE MENU DEROULANT
 loadServices: function() {
@@ -211,9 +220,12 @@ loadServices: function() {
     });
 },
 
-deleteService: function(id) {
-    if(confirm("Supprimer ce service ?")) window.db.collection("services").doc(id).delete();
-},
+AdminApp.deleteService = function(id) {
+    if (confirm(`Supprimer le service "${id}" ?`)) {
+        window.db.collection("services").doc(id).delete()
+            .then(() => this.log(`🗑️ Service "${id}" supprimé.`));
+    }
+};
 
 logout: function() {
     window.auth.signOut().then(() => window.location.href = 'index.html');
