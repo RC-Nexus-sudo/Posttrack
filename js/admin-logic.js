@@ -157,67 +157,8 @@ const AdminApp = {
             window.db.collection("users").doc(id).delete().then(() => this.log("Compte révoqué : " + id));
         }
     },
-
-    // 8. GESTION DES SERVICES
-    addService: function() {
-        const nameInput = document.getElementById('new-service-name');
-        const colorInput = document.getElementById('new-service-color');
-        const name = nameInput.value.trim();
-        const color = colorInput.value;
-
-        if (!name) return alert("Nom de service requis.");
-
-        window.db.collection("services").doc(name).set({
-            name: name,
-            color: color,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).then(() => {
-            this.log(`✅ Service "${name}" enregistré.`);
-            nameInput.value = "";
-        });
-    },
-
-    loadServices: function() {
-        const listAdmin = document.getElementById('services-list-admin');
-        const selectAgent = document.getElementById('adm-service');
-        if (!listAdmin || !selectAgent) return;
-
-        window.db.collection("services").onSnapshot(snap => {
-            listAdmin.innerHTML = "";
-            selectAgent.innerHTML = '<option value="">-- Choisir un service --</option>';
-            snap.forEach(doc => {
-                const s = doc.data();
-                listAdmin.innerHTML += `
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold text-white" style="background: ${s.color}22; border-color: ${s.color}">
-                        <span class="w-2 h-2 rounded-full" style="background: ${s.color}"></span>
-                        ${s.name}
-                        <button onclick="AdminApp.deleteService('${doc.id}')" class="ml-1 text-slate-500 hover:text-white">×</button>
-                    </div>`;
-                selectAgent.innerHTML += `<option value="${s.name}">${s.name}</option>`;
-            });
-        });
-    },
-
-    deleteService: function(id) {
-        if (confirm(`Supprimer le service "${id}" ?`)) {
-            window.db.collection("services").doc(id).delete().then(() => this.log(`🗑️ Service "${id}" supprimé.`));
-        }
-    },
-
-    // UTILITAIRE
-    clearForm: function() {
-        ['adm-uid', 'adm-prenom', 'adm-nom', 'adm-email', 'adm-service'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = "";
-        });
-        document.getElementById('adm-uid').placeholder = "Généré automatiquement";
-    },
-
-    logout: function() {
-        window.auth.signOut().then(() => { window.location.href = 'index.html'; });
-    }
-};
-// 9. AJOUTER UN SERVICE
+   
+// 8. AJOUTER UN SERVICE
     addService: function() {
         const nameInput = document.getElementById('new-service-name');
         const colorInput = document.getElementById('new-service-color');
@@ -241,7 +182,7 @@ const AdminApp = {
         .catch(err => this.log("❌ Erreur service : " + err.message));
     },
 
-    // 10. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
+    // 9. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
     loadServices: function() {
         const listAdmin = document.getElementById('services-list-admin');
         const selectAgent = document.getElementById('adm-service');
@@ -269,7 +210,7 @@ const AdminApp = {
         }, err => this.log("Erreur flux services: " + err.message));
     },
 
-    // 11. SUPPRIMER UN SERVICE
+    // 10. SUPPRIMER UN SERVICE
     deleteService: function(id) {
         if (confirm(`Supprimer le service "${id}" ?`)) {
             window.db.collection("services").doc(id).delete()
@@ -277,7 +218,7 @@ const AdminApp = {
         }
     },
 
-    // 12. DÉCONNEXION
+    // 11. DÉCONNEXION
     logout: function() {
         window.auth.signOut().then(() => {
             window.location.href = 'index.html';
