@@ -115,9 +115,18 @@
 </script>
 
 <!-- Vos fichiers JS -->
+<script src="lib/firebase-app-compat.js"></script>
+<script src="lib/firebase-firestore-compat.js"></script>
+<script src="lib/firebase-auth-compat.js"></script>
+
+<!-- 2. Initialisation de la logique App & Logs -->
 <script src="js/logger.js"></script>
 <script src="js/templates.js"></script>
-<script src="js/firebase-config.js"></script> <!-- Config après les SDKs -->
+
+<!-- 3. Configuration des services (dépend des libs et du logger) -->
+<script src="js/firebase-config.js"></script>
+
+<!-- 4. Routage et modules (dépend des templates et de firebase) -->
 <script src="js/router.js"></script>
 
 </body>
