@@ -19,24 +19,28 @@ App.modules.entrants = {
         if (!container) return;
 
         container.innerHTML = `
-            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
-                            <th class="p-5">Date</th>
-                            <th class="p-5 text-center">Mode</th>
-                            <th class="p-5">Expéditeur & Type</th>
-                            <th class="p-5">Description</th>
-                            <th class="p-5">Destination</th>
-                            <th class="p-5 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body-entrants" class="divide-y divide-slate-50">
-                        <tr><td colspan="6" class="p-10 text-center text-slate-300 italic">Connexion à Firestore...</td></tr>
-                    </tbody>
-                </table>
-            </div>`;
-    },
+    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+         <table class="w-full text-left border-collapse">
+         <thead class="bg-slate-50 border-b border-slate-100">
+         <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
+         <th class="p-5">Date</th>
+         <th class="p-5 text-center">Mode</th>
+         <th class="p-5">Expéditeur & Type</th>
+         <th class="p-5">Description</th>
+         <th class="p-5">Destination</th>
+         <!-- NOUVELLES COLONNES EN-TÊTE -->
+         <th class="p-5">Encodé par</th>
+         <th class="p-5">Modifié le</th>
+         <th class="p-5 text-right">Actions</th>
+         </tr>
+         </thead>
+         <tbody id="table-body-entrants" class="divide-y divide-slate-50">
+     <tr><td colspan="8" class="p-10 text-center text-slate-300 italic">Connexion à 
+        Firestore...</td></tr>
+     </tbody>
+     </table>
+ </div>`;
+ },
 
     // Helper pour les icônes
     getModeIcon: function(mode) {
@@ -72,6 +76,28 @@ App.modules.entrants = {
                     const color = serviceMap[mail.service] || '#cbd5e1';
                     const modeIcon = this.getModeIcon(mail.mode_reception);
 
+                    // Helper pour les couleurs du mode de réception
+    getModeColorStyle: function(mode) {
+    switch (mode) {
+        case 'Direct': return 'bg-gray-100 text-gray-800';      // Gris
+        case 'Poste': return 'bg-red-500 text-white';           // Rouge
+        case 'Transporteur': return 'bg-orange-400 text-black'; // Orange
+        case 'Huissiers': return 'bg-gray-900 text-white';      // Noir
+        case 'Police': return 'bg-blue-500 text-white';         // Bleu
+        default: return 'bg-slate-100 text-slate-500';
+    }
+},
+
+                    // Helper pour les couleurs du type de lettre
+    getTypeColorStyle: function(type) {
+    switch (type) {
+        case 'Simple': return 'bg-gray-100 text-gray-600';          // Gris clair
+        case 'Prior': return 'bg-yellow-300 text-black';            // Jaune
+        case 'Recommandé': return 'bg-red-400 text-white font-bold'; // Rouge
+        case 'Recommandé AR': return 'bg-red-600 text-white font-black'; // Rouge gras
+        default: return 'text-slate-500';
+    }
+},
                     html += `
                         <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
                             <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
@@ -122,6 +148,11 @@ App.modules.entrants = {
 
     // Sauvegarde Firestore
     save: function() {
+
+        // Capture de l'utilisateur actuellement connecté
+        const user = window.auth.currentUser; // Suppose que window.auth est défini
+        const userName = user ? (user.displayName || user.email || 'Inconnu') :
+            
         const data = {
             mode_reception: document.getElementById('mail-mode').value,
             type_lettre: document.getElementById('mail-type').value,
@@ -130,6 +161,8 @@ App.modules.entrants = {
             objet: document.getElementById('mail-subject').value.trim(),
             statut: "Reçu",
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            encodedBy: userName, // Qui a encodé
+            updatedAt: new Date().toLocaleDateString('fr-BE') // Date de dernière modification (simple string)
         };
 
         if(!data.expediteur || !data.service || !data.objet) {
