@@ -5,10 +5,49 @@ var App = App || {};
 
 App.monitoring = {
     init: function() {
-        App.logger.log("Initialisation de la Monitoring Bar...", "debug");
-        this.renderStats();
-        this.initSearch();
+        // Le "Gardien" du monitoring
+        window.auth.onAuthStateChanged(user => {
+            if (user) {
+                App.logger.log("Monitoring : Session validée, lancement des compteurs.", "debug");
+                this.renderStats();
+            } else {
+                // Si déconnecté, on remet les compteurs à 0
+                const container = document.getElementById('quick-stats');
+                if (container) container.innerHTML = "";
+            }
+        });
     },
+
+    renderStats: function() {
+        const container = document.getElementById('quick-stats');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="flex gap-2 animate-fade-in">
+                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-black shadow-sm">
+                    <i class="fa-solid fa-download text-blue-500"></i> Entrants: <span id="stat-in">...</span>
+                </div>
+            </div>`;
+
+        this.listenCollection('courriers_entrants', 'stat-in');
+    },
+
+    listenCollection: function(collectionName, elementId) {
+        if (!window.db) return;
+        
+        window.db.collection(collectionName).onSnapshot(snap => {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.innerText = snap.size;
+                // Petit effet visuel quand le chiffre change
+                el.classList.add('text-blue-600', 'scale-110');
+                setTimeout(() => el.classList.remove('text-blue-600', 'scale-110'), 300);
+            }
+        }, err => {
+            App.logger.log(`Erreur monitoring [${collectionName}] : ${err.message}`, "error");
+        });
+    }
+};
 
     renderStats: function() {
         const container = document.getElementById('quick-stats');
