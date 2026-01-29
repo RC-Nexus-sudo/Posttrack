@@ -64,8 +64,8 @@ App.templates = {
                     </div>
                     <div>${headerAction}</div>
                 </div>
-                <div class="flex-1">${body}</div>
-            </div>`;
+                <div id="${id}-content">${body}</div> 
+    </div>`;
     }, // <-- Virgule obligatoire ici
 
     // 3. FORMULAIRE DE SAISIE (MODAL)
