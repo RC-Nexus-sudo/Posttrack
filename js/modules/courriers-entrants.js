@@ -23,11 +23,11 @@ App.modules.entrants = {
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-100">
                         <tr class="text-[10px] uppercase tracking-widest text-slate-400">
-                            <th class="p-4 font-bold">Réception</th>
+                            <th class="p-4 font-bold">Date</th>
+                            <th class="p-4 font-bold">Mode</th>
                             <th class="p-4 font-bold">Expéditeur</th>
-                            <th class="p-4 font-bold">Objet</th>
                             <th class="p-4 font-bold">Service Destinataire</th>
-                            <th class="p-4 font-bold">Statut</th>
+                            <th class="p-4 font-bold">Description</th>
                         </tr>
                     </thead>
                     <tbody id="table-body-entrants" class="divide-y divide-slate-50">
