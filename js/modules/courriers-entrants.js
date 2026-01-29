@@ -128,11 +128,29 @@ App.modules.entrants = {
         });
     },
 
-    // Ouverture du formulaire (Overlay) (inchangé)
-    openForm: function() {
+    // Ouverture du formulaire (Overlay)
+    openForm: function(docId = null) { // [MODIFICATION] Accepte un ID optionnel
         const modal = document.getElementById('modal-overlay');
         const content = document.getElementById('modal-content');
         content.innerHTML = App.templates.entryForm();
+
+        // Référence au bouton de sauvegarde principal
+        const saveButton = document.getElementById('save-mail-btn'); // Assurez-vous que ce bouton a cet ID dans entryForm()
+
+        // [MODIFICATION] Gestion du mode édition vs ajout
+        if (docId) {
+            // Mode édition
+            App.logger.log(`Ouverture formulaire en mode édition pour ID: ${docId}`, "info");
+            saveButton.innerText = "Mettre à jour le courrier";
+            // Stocke l'ID du document en cours de modification dans un attribut data
+            saveButton.setAttribute('data-edit-id', docId); 
+            this.loadDataIntoForm(docId); // Charge les données existantes
+        } else {
+            // Mode ajout standard
+            App.logger.log("Ouverture formulaire en mode ajout.", "info");
+            saveButton.innerText = "Enregistrer le courrier";
+            saveButton.removeAttribute('data-edit-id');
+        }
         
         const select = document.getElementById('mail-dest-service');
         window.db.collection("services").get().then(snap => {
@@ -144,9 +162,12 @@ App.modules.entrants = {
         modal.classList.replace('hidden', 'flex');
     },
 
-    // Sauvegarde Firestore (MIS À JOUR pour ajouter l'utilisateur et les timestamps)
+    // Sauvegarde Firestore - MIS À JOUR
     save: function() {
-        const user = window.auth.currentUser; // Récupère l'utilisateur actuel
+        const user = window.auth.currentUser;
+        const saveButton = document.getElementById('save-mail-btn');
+        const editId = saveButton.getAttribute('data-edit-id'); // [MODIFICATION] Récupère l'ID si on est en mode édition
+
         const data = {
             mode_reception: document.getElementById('mail-mode').value,
             type_lettre: document.getElementById('mail-type').value,
@@ -154,18 +175,31 @@ App.modules.entrants = {
             service: document.getElementById('mail-dest-service').value,
             objet: document.getElementById('mail-subject').value.trim(),
             statut: "Reçu",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            encodedBy: user ? (user.displayName || user.email) : "Anonyme", // Qui a encodé
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp() // Date de création/modification
+            // timestamp n'est mis à jour qu'à la création, updatedAt l'est toujours
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(), 
+            encodedBy: user ? (user.displayName || user.email) : "Anonyme",
         };
+
         if(!data.expediteur || !data.service || !data.objet) {
             alert("Veuillez remplir les champs obligatoires.");
             return;
         }
-        window.db.collection("courriers_entrants").add(data).then(() => {
-            App.logger.log("✅Courrier enregistré", "info");
-            document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-        });
+
+        // [MODIFICATION] Logique conditionnelle pour ajouter ou mettre à jour
+        if (editId) {
+            // Mise à jour (mode édition)
+            window.db.collection("courriers_entrants").doc(editId).update(data).then(() => {
+                App.logger.log("✅Courrier mis à jour", "info");
+                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+            });
+        } else {
+            // Ajout (mode standard)
+            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Ajoute timestamp seulement à la création
+            window.db.collection("courriers_entrants").add(data).then(() => {
+                App.logger.log("✅Courrier enregistré", "info");
+                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+            });
+        }
     },
 
     // Suppression (inchangé)
@@ -175,11 +209,28 @@ App.modules.entrants = {
         }
     },
 
-    // Modification (NOUVEAU - Logique de base)
+    // Modification (redirige vers openForm avec l'ID) - MIS À JOUR
     edit: function(id) {
-        App.logger.log(`Modification du document ID: ${id}`, "debug");
-        alert("La fonction de modification nécessite d'ouvrir le formulaire et de pré-remplir les champs. Nous implémenterons cela ensuite.");
-        // Logique à compléter pour charger les données dans le formulaire
+        this.openForm(id); // Ouvre le formulaire en mode édition
+    },
+
+    // [NOUVEAU] Fonction pour charger les données dans le formulaire
+    loadDataIntoForm: function(id) {
+        window.db.collection("courriers_entrants").doc(id).get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                // Remplir tous les champs du formulaire avec les données
+                document.getElementById('mail-mode').value = data.mode_reception;
+                document.getElementById('mail-type').value = data.type_lettre;
+                document.getElementById('mail-sender').value = data.expediteur;
+                document.getElementById('mail-subject').value = data.objet;
+                // Le service doit être géré après le chargement des options dans openForm
+                // On peut utiliser un setTimeout rapide ou améliorer openForm pour attendre les services
+                setTimeout(() => {
+                    document.getElementById('mail-dest-service').value = data.service;
+                }, 300); 
+            }
+        });
     }
 };
 
