@@ -1,7 +1,7 @@
 /**
-* Module : Courriers Entrants
-* Gère l'affichage du tableau Bento et la saisie des plis reçus.
-*/
+ * Module : Courriers Entrants
+ * Gère l'affichage du tableau Bento et la saisie des plis reçus.
+ */
 var App = App || {};
 App.modules = App.modules || {};
 App.modules.entrants = {
@@ -11,7 +11,6 @@ App.modules.entrants = {
         this.renderTable();
         this.fetchData();
     },
-
     // Construction de la structure (Titres des colonnes)
     renderTable: function() {
         const container = document.getElementById('entrants-content');
@@ -22,6 +21,7 @@ App.modules.entrants = {
         <thead class="bg-slate-50 border-b border-slate-100">
         <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
         <th class="p-5">Date</th>
+        <th class="p-5">Indicateur</th> <!-- NOUVELLE COLONNE -->
         <th class="p-5 text-center">Mode</th>
         <th class="p-5">Expéditeur & Type</th>
         <th class="p-5">Description</th>
@@ -32,13 +32,13 @@ App.modules.entrants = {
         </tr>
         </thead>
         <tbody id="table-body-entrants" class="divide-y divide-slate-50">
-        <tr><td colspan="8" class="p-10 text-center text-slate-300 italic">Connexion à Firestore...</td></tr>
+        <tr><td colspan="9" class="p-10 text-center text-slate-300 italic">Connexion à 
+        Firestore...</td></tr>
         </tbody>
         </table>
         </div>`;
     },
-
-    // Helper pour les icônes (inchangé)
+    // Helper pour les icônes 
     getModeIcon: function(mode) {
         const icons = {
             'Direct': 'fa-hand-holding-dots text-slate-400',
@@ -49,8 +49,7 @@ App.modules.entrants = {
         };
         return icons[mode] || 'fa-file text-slate-300';
     },
-
-    // Helper pour les couleurs (NOUVEAU)
+    // Helper pour les couleurs 
     getModeStyle: function(mode) {
         const styles = {
             'Direct': 'bg-gray-100 text-gray-800',
@@ -61,7 +60,6 @@ App.modules.entrants = {
         };
         return styles[mode] || 'bg-gray-100 text-gray-800';
     },
-
     getTypeStyle: function(type) {
         const styles = {
             'Simple': 'bg-gray-100 text-gray-800',
@@ -71,7 +69,6 @@ App.modules.entrants = {
         };
         return styles[type] || 'bg-gray-100 text-gray-800';
     },
-
     // Récupération des données et Rendu des lignes (MIS À JOUR)
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
@@ -81,7 +78,7 @@ App.modules.entrants = {
             serviceSnap.forEach(doc => serviceMap[doc.id] = doc.data().color);
             window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 if (snap.empty) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
                     return;
                 }
                 let html = "";
@@ -95,6 +92,7 @@ App.modules.entrants = {
                     html += `
                     <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
                     <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
+                    <td class="p-4 text-sm font-mono text-blue-600 font-bold">${mail.indicateur || 'N/A'}</td> <!-- AFFICHAGE INDICATEUR -->
                     <td class="p-4 text-center">
                     <div class="w-8 h-8 rounded-lg ${this.getModeStyle(mail.mode_reception)} flex items-center justify-center border border-slate-100 shadow-sm mx-auto">
                     <i class="fa-solid ${modeIcon} text-xs"></i>
@@ -115,7 +113,7 @@ App.modules.entrants = {
                     <td class="p-4 text-[10px] text-slate-400">${updateDate}</td>
                     <td class="p-4 text-right flex justify-end gap-2">
                     <button onclick="App.modules.entrants.edit('${doc.id}')" class="w-8 h-8 rounded-xl hover:bg-blue-50 hover:text-blue-500 text-slate-400 transition flex items-center justify-center">
-                        <i class="fa-solid fa-pencil text-xs"></i>
+                    <i class="fa-solid fa-pencil text-xs"></i>
                     </button>
                     <button onclick="App.modules.entrants.delete('${doc.id}')" class="w-8 h-8 rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-300 transition flex items-center justify-center">
                     <i class="fa-solid fa-trash-can text-xs"></i>
@@ -127,26 +125,18 @@ App.modules.entrants = {
             });
         });
     },
-
     // Ouverture du formulaire (Overlay)
-    openForm: function(docId = null) { // [MODIFICATION] Accepte un ID optionnel
+    openForm: function(docId = null) {
         const modal = document.getElementById('modal-overlay');
         const content = document.getElementById('modal-content');
         content.innerHTML = App.templates.entryForm();
-
-        // Référence au bouton de sauvegarde principal
-        const saveButton = document.getElementById('save-mail-btn'); // Assurez-vous que ce bouton a cet ID dans entryForm()
-
-        // [MODIFICATION] Gestion du mode édition vs ajout
+        const saveButton = document.getElementById('save-mail-btn');
         if (docId) {
-            // Mode édition
             App.logger.log(`Ouverture formulaire en mode édition pour ID: ${docId}`, "info");
             saveButton.innerText = "Mettre à jour le courrier";
-            // Stocke l'ID du document en cours de modification dans un attribut data
             saveButton.setAttribute('data-edit-id', docId); 
-            this.loadDataIntoForm(docId); // Charge les données existantes
+            this.loadDataIntoForm(docId);
         } else {
-            // Mode ajout standard
             App.logger.log("Ouverture formulaire en mode ajout.", "info");
             saveButton.innerText = "Enregistrer le courrier";
             saveButton.removeAttribute('data-edit-id');
@@ -162,12 +152,11 @@ App.modules.entrants = {
         modal.classList.replace('hidden', 'flex');
     },
 
-    // Sauvegarde Firestore - MIS À JOUR
+    // Sauvegarde Firestore (Simplifiée pour Cloud Function)
     save: function() {
         const user = window.auth.currentUser;
         const saveButton = document.getElementById('save-mail-btn');
-        const editId = saveButton.getAttribute('data-edit-id'); // [MODIFICATION] Récupère l'ID si on est en mode édition
-
+        const editId = saveButton.getAttribute('data-edit-id');
         const data = {
             mode_reception: document.getElementById('mail-mode').value,
             type_lettre: document.getElementById('mail-type').value,
@@ -175,7 +164,7 @@ App.modules.entrants = {
             service: document.getElementById('mail-dest-service').value,
             objet: document.getElementById('mail-subject').value.trim(),
             statut: "Reçu",
-            // timestamp n'est mis à jour qu'à la création, updatedAt l'est toujours
+            // Pas besoin d'ajouter 'indicateur' ici, la fonction serveur le fera.
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(), 
             encodedBy: user ? (user.displayName || user.email) : "Anonyme",
         };
@@ -185,7 +174,6 @@ App.modules.entrants = {
             return;
         }
 
-        // [MODIFICATION] Logique conditionnelle pour ajouter ou mettre à jour
         if (editId) {
             // Mise à jour (mode édition)
             window.db.collection("courriers_entrants").doc(editId).update(data).then(() => {
@@ -193,39 +181,34 @@ App.modules.entrants = {
                 document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
             });
         } else {
-            // Ajout (mode standard)
-            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Ajoute timestamp seulement à la création
+            // Ajout (mode standard) - La Cloud Function ajoute l'indicateur après coup
+            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
+            
             window.db.collection("courriers_entrants").add(data).then(() => {
-                App.logger.log("✅Courrier enregistré", "info");
+                App.logger.log("✅Courrier enregistré (l'indicateur sera bientôt visible)", "info");
                 document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
             });
         }
     },
-
-    // Suppression (inchangé)
+    // Suppression 
     delete: function(id) {
         if(confirm("Supprimer ce pli du registre ?")) {
             window.db.collection("courriers_entrants").doc(id).delete();
         }
     },
-
-    // Modification (redirige vers openForm avec l'ID) - MIS À JOUR
+    // Modification (redirige vers openForm avec l'ID) - inchangé
     edit: function(id) {
-        this.openForm(id); // Ouvre le formulaire en mode édition
+        this.openForm(id);
     },
-
-    // [NOUVEAU] Fonction pour charger les données dans le formulaire
+    // Fonction pour charger les données dans le formulaire 
     loadDataIntoForm: function(id) {
         window.db.collection("courriers_entrants").doc(id).get().then(doc => {
             if (doc.exists) {
                 const data = doc.data();
-                // Remplir tous les champs du formulaire avec les données
                 document.getElementById('mail-mode').value = data.mode_reception;
                 document.getElementById('mail-type').value = data.type_lettre;
                 document.getElementById('mail-sender').value = data.expediteur;
                 document.getElementById('mail-subject').value = data.objet;
-                // Le service doit être géré après le chargement des options dans openForm
-                // On peut utiliser un setTimeout rapide ou améliorer openForm pour attendre les services
                 setTimeout(() => {
                     document.getElementById('mail-dest-service').value = data.service;
                 }, 300); 
@@ -233,4 +216,5 @@ App.modules.entrants = {
         });
     }
 };
+
 
