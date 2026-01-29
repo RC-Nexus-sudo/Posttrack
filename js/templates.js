@@ -123,7 +123,7 @@ App.templates = {
             </div>
 
             <div class="mt-10 flex gap-4">
-                <button onclick="App.modules.entrants.save()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition shadow-xl shadow-blue-100 uppercase text-xs tracking-widest">
+                <button id="save-mail-btn" onclick="App.modules.entrants.save()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition shadow-xl shadow-blue-100 uppercase text-xs tracking-widest">
                     Valider l'entrée
                 </button>
                 <button onclick="document.getElementById('modal-overlay').classList.replace('flex', 'hidden')" class="px-8 py-4 text-slate-400 font-bold hover:text-slate-600 transition text-xs uppercase tracking-widest">
