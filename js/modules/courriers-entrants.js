@@ -69,6 +69,37 @@ App.modules.entrants = {
         };
         return styles[type] || 'bg-gray-100 text-gray-800';
     },
+
+    /**
+     * Récupère le prochain numéro de séquence via une transaction Firestore
+     * et le formate sur 6 chiffres (ex: 000042).
+     */
+    getNextSequence: function() {
+    const counterRef = window.db.collection("compteurs").doc("courriersEntrantsCompteur");
+
+    // Utilisation d'une transaction pour garantir l'atomicité de l'incrémentation
+    return window.db.runTransaction(function(transaction) {
+        // Cette promesse lit le document actuel
+        return transaction.get(counterRef).then(function(doc) {
+            if (!doc.exists) {
+                // Initialise si le document n'existe pas
+                transaction.set(counterRef, { sequence: 1 });
+                return "000001";
+            }
+
+            // Incrémente le compteur
+            const newSequence = doc.data().sequence + 1;
+            transaction.update(counterRef, { sequence: newSequence });
+
+            // Formate le numéro sur 6 chiffres avec des zéros initiaux
+            return String(newSequence).padStart(6, '0');
+        });
+    }).catch(error => {
+        App.logger.log("Erreur transaction compteur: " + error, "error");
+        // En cas d'échec critique, retournez quelque chose pour ne pas bloquer l'appli
+        return null;
+    });
+    
     // Récupération des données et Rendu des lignes (MIS À JOUR)
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
@@ -154,42 +185,51 @@ App.modules.entrants = {
 
     // Sauvegarde Firestore (Simplifiée pour Cloud Function)
     save: function() {
-        const user = window.auth.currentUser;
-        const saveButton = document.getElementById('save-mail-btn');
-        const editId = saveButton.getAttribute('data-edit-id');
-        const data = {
-            mode_reception: document.getElementById('mail-mode').value,
-            type_lettre: document.getElementById('mail-type').value,
-            expediteur: document.getElementById('mail-sender').value.trim(),
-            service: document.getElementById('mail-dest-service').value,
-            objet: document.getElementById('mail-subject').value.trim(),
-            statut: "Reçu",
-            // Pas besoin d'ajouter 'indicateur' ici, la fonction serveur le fera.
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(), 
-            encodedBy: user ? (user.displayName || user.email) : "Anonyme",
-        };
+    const user = window.auth.currentUser;
+    const saveButton = document.getElementById('save-mail-btn');
+    const editId = saveButton.getAttribute('data-edit-id'); 
 
-        if(!data.expediteur || !data.service || !data.objet) {
-            alert("Veuillez remplir les champs obligatoires.");
-            return;
-        }
+    const baseData = {
+        mode_reception: document.getElementById('mail-mode').value,
+        type_lettre: document.getElementById('mail-type').value,
+        expediteur: document.getElementById('mail-sender').value.trim(),
+        service: document.getElementById('mail-dest-service').value,
+        objet: document.getElementById('mail-subject').value.trim(),
+        statut: "Reçu",
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(), 
+        encodedBy: user ? (user.displayName || user.email) : "Anonyme",
+    };
+    
+    if(!baseData.expediteur || !baseData.service || !baseData.objet) {
+        alert("Veuillez remplir les champs obligatoires.");
+        return;
+    }
 
-        if (editId) {
-            // Mise à jour (mode édition)
-            window.db.collection("courriers_entrants").doc(editId).update(data).then(() => {
-                App.logger.log("✅Courrier mis à jour", "info");
+    if (editId) {
+        // Mode édition (inchangé, on ne modifie pas le numéro d'enregistrement)
+        window.db.collection("courriers_entrants").doc(editId).update(baseData).then(() => {
+            App.logger.log("✅Courrier mis à jour", "info");
+            document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+        });
+    } else {
+        // Mode ajout : On appelle la fonction de compteur avant d'ajouter le document
+        this.getNextSequence().then(referenceId => {
+            if (!referenceId) return; // Si la transaction a échoué
+
+            // Ajoute le nouveau champ "reference" ou "num_enregistrement" aux données
+            const finalData = {
+                ...baseData,
+                reference: referenceId, // C'est ici qu'on ajoute le numéro unique
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            };
+
+            window.db.collection("courriers_entrants").add(finalData).then(() => {
+                App.logger.log(`✅Courrier enregistré (Réf: ${referenceId})`, "info");
                 document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
             });
-        } else {
-            // Ajout (mode standard) - La Cloud Function ajoute l'indicateur après coup
-            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
-            
-            window.db.collection("courriers_entrants").add(data).then(() => {
-                App.logger.log("✅Courrier enregistré (l'indicateur sera bientôt visible)", "info");
-                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-            });
-        }
-    },
+        });
+    }
+},
     // Suppression 
     delete: function(id) {
         if(confirm("Supprimer ce pli du registre ?")) {
@@ -216,5 +256,3 @@ App.modules.entrants = {
         });
     }
 };
-
-
