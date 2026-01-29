@@ -21,7 +21,7 @@ App.modules.entrants = {
         <thead class="bg-slate-50 border-b border-slate-100">
         <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
         <th class="p-5">Date</th>
-        <th class="p-5">Indicateur</th> <!-- NOUVELLE COLONNE -->
+        <th class="p-5">Référence</th> <!-- NOUVELLE COLONNE -->
         <th class="p-5 text-center">Mode</th>
         <th class="p-5">Expéditeur & Type</th>
         <th class="p-5">Description</th>
@@ -111,6 +111,7 @@ App.modules.entrants = {
                 if (snap.empty) {
                     tbody.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
                     return;
+                        window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 }
                 let html = "";
                 snap.forEach(doc => {
@@ -123,8 +124,8 @@ App.modules.entrants = {
                     html += `
                     <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
                     <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
-                    <td class="p-4 text-sm font-mono text-blue-600 font-bold">${mail.indicateur || 'N/A'}</td> <!-- AFFICHAGE INDICATEUR -->
-                    <td class="p-4 text-center">
+                    <!-- NOUVELLE CELLULE POUR LA RÉFÉRENCE -->
+                    <td class="p-4 text-xs font-bold text-slate-600">${mail.reference || 'N/A'}</td>
                     <div class="w-8 h-8 rounded-lg ${this.getModeStyle(mail.mode_reception)} flex items-center justify-center border border-slate-100 shadow-sm mx-auto">
                     <i class="fa-solid ${modeIcon} text-xs"></i>
                     </div>
