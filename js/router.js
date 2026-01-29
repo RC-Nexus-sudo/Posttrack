@@ -61,11 +61,15 @@ App.router = {
     },
 
     loadModuleData: function(routeId) {
-        // Logique pour appeler les fonctions spécifiques (ex: App.modules.entrants.init())
-        if (App.modules && App.modules[routeId] && App.modules[routeId].init) {
-            App.modules[routeId].init();
-        }
+    App.logger.log(`Initialisation des données pour [${routeId}]...`, 'debug');
+    
+    // On vérifie si le module existe et possède une fonction init
+    if (App.modules && App.modules[routeId] && App.modules[routeId].init) {
+        App.modules[routeId].init(); 
+    } else {
+        App.logger.log(`Info : Pas de logique spécifique pour le module ${routeId}`, 'debug');
     }
+}
 };
 
 
