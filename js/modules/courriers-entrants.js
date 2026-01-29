@@ -99,7 +99,7 @@ App.modules.entrants = {
         // En cas d'échec critique, retournez quelque chose pour ne pas bloquer l'appli
         return null;
     });
-    
+        
     // Récupération des données et Rendu des lignes (MIS À JOUR)
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
@@ -113,6 +113,7 @@ App.modules.entrants = {
                     return;
                         window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 }
+                                                                                                           
                 let html = "";
                 snap.forEach(doc => {
                     const mail = doc.data();
