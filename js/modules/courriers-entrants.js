@@ -107,24 +107,28 @@ App.modules.entrants = {
 
     // 5. Sauvegarde Firestore
     save: function() {
-        const data = {
-            expediteur: document.getElementById('mail-sender').value.trim(),
-            service: document.getElementById('mail-dest-service').value,
-            type: document.getElementById('mail-type').value,
-            objet: document.getElementById('mail-subject').value.trim(),
-            statut: "Reçu",
-            agent: window.auth.currentUser.email,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
+    const data = {
+        mode_reception: document.getElementById('mail-mode').value,
+        type_lettre: document.getElementById('mail-type').value,
+        expediteur: document.getElementById('mail-sender').value.trim(),
+        service: document.getElementById('mail-dest-service').value,
+        objet: document.getElementById('mail-subject').value.trim(),
+        statut: "Reçu",
+        agent_nom: window.auth.currentUser.email, // On trace qui a fait l'encodage
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-        if(!data.expediteur || !data.service || !data.objet) {
-            alert("Veuillez remplir tous les champs obligatoires.");
-            return;
-        }
-
-        window.db.collection("courriers_entrants").add(data).then(() => {
-            App.logger.log("✅ Courrier enregistré avec succès.", "info");
-            document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-        }).catch(err => App.logger.log("Erreur : " + err.message, "error"));
+    // Validation
+    if(!data.expediteur || !data.service || !data.objet) {
+        alert("Les champs Expéditeur, Service et Description sont obligatoires.");
+        return;
     }
+
+    window.db.collection("courriers_entrants").add(data)
+        .then(() => {
+            App.logger.log(`✅ Courrier de [${data.expediteur}] enregistré via [${data.mode_reception}]`, "info");
+            document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+        })
+        .catch(err => App.logger.log("Erreur Firestore : " + err.message, "error"));
+}
 };
