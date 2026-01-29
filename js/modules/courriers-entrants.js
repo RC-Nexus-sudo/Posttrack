@@ -37,22 +37,29 @@ App.modules.entrants = {
             </div>`;
     },
 
-    // 3. Récupération des données et des couleurs de services
+    // Helper pour les icônes de réception
+    getModeIcon: function(mode) {
+        const icons = {
+            'Direct': 'fa-hand-holding-dots text-slate-400',
+            'Poste': 'fa-envelope-open text-blue-400',
+            'Transporteur': 'fa-truck-fast text-amber-500',
+            'Huissiers': 'fa-scale-balanced text-purple-500',
+            'Police': 'fa-shield-halved text-rose-500'
+        };
+        return icons[mode] || 'fa-file text-slate-300';
+    },
+
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
         if (!tbody) return;
 
-        // Étape A : On récupère les services pour mapper les couleurs
         window.db.collection("services").get().then(serviceSnap => {
             const serviceMap = {};
-            serviceSnap.forEach(doc => {
-                serviceMap[doc.id] = doc.data().color;
-            });
+            serviceSnap.forEach(doc => serviceMap[doc.id] = doc.data().color);
 
-            // Étape B : On écoute les courriers en temps réel
             window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 if (snap.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400">Aucun courrier enregistré.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
                     return;
                 }
 
@@ -61,22 +68,31 @@ App.modules.entrants = {
                     const mail = doc.data();
                     const date = mail.timestamp ? new Date(mail.timestamp.seconds * 1000).toLocaleDateString('fr-BE') : '...';
                     const color = serviceMap[mail.service] || '#cbd5e1';
+                    const modeIcon = this.getModeIcon(mail.mode_reception);
 
                     html += `
-                        <tr class="hover:bg-slate-50/80 transition group">
-                            <td class="p-4 text-xs font-mono text-slate-400">${date}</td>
-                            <td class="p-4 text-sm font-bold text-slate-700">${mail.expediteur}</td>
-                            <td class="p-4 text-sm text-slate-500 max-w-xs truncate">${mail.objet}</td>
+                        <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
+                            <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
+                            <td class="p-4 text-center">
+                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white transition shadow-sm" title="${mail.mode_reception}">
+                                    <i class="fa-solid ${modeIcon} text-xs"></i>
+                                </div>
+                            </td>
                             <td class="p-4">
-                                <span class="px-3 py-1 rounded-full text-[10px] font-extrabold border" 
-                                      style="background: ${color}15; border-color: ${color}; color: ${color}">
+                                <p class="text-sm font-black text-slate-800 leading-tight">${mail.expediteur}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${mail.type_lettre}</p>
+                            </td>
+                            <td class="p-4 text-sm text-slate-500 max-w-xs truncate font-medium">${mail.objet}</td>
+                            <td class="p-4">
+                                <span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest" 
+                                      style="background: ${color}10; border-color: ${color}; color: ${color}">
                                     ${mail.service}
                                 </span>
                             </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 uppercase">
-                                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span> ${mail.statut}
-                                </div>
+                            <td class="p-4 text-right">
+                                <button onclick="App.modules.entrants.delete('${doc.id}')" class="w-8 h-8 rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-300 transition flex items-center justify-center ml-auto">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
                             </td>
                         </tr>`;
                 });
