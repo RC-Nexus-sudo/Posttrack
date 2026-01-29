@@ -72,32 +72,65 @@ App.templates = {
     entryForm: function() {
         return `
             <div class="p-10">
-                <h3 class="text-2xl font-black text-slate-800 mb-6 tracking-tight text-left">Nouvel Enregistrement</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Expéditeur</label>
-                        <input type="text" id="mail-sender" placeholder="Origine..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 transition">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Service</label>
-                        <select id="mail-dest-service" class="w-full p-4 bg-slate-50 rounded-2xl outline-none"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Type</label>
-                        <select id="mail-type" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
-                            <option>Lettre</option><option>Recommandé</option><option>Facture</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Objet</label>
-                        <textarea id="mail-subject" rows="2" class="w-full p-4 bg-slate-50 rounded-2xl outline-none"></textarea>
-                    </div>
+            <header class="mb-8">
+                <h3 class="text-2xl font-black text-slate-800 tracking-tight">Nouvel Enregistrement</h3>
+                <p class="text-slate-400 text-sm italic font-medium">Saisie rigoureuse du courrier entrant</p>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                <!-- 1. Mode de réception -->
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">1. Mode de réception</label>
+                    <select id="mail-mode" class="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 font-medium text-sm">
+                        <option value="Direct">Direct</option>
+                        <option value="Poste">Poste</option>
+                        <option value="Transporteur">Transporteur</option>
+                        <option value="Huissiers">Huissiers</option>
+                        <option value="Police">Police</option>
+                    </select>
                 </div>
-                <div class="mt-10 flex gap-4">
-                    <button onclick="App.modules.entrants.save()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition">VALIDER</button>
-                    <button onclick="document.getElementById('modal-overlay').classList.replace('flex', 'hidden')" class="px-8 py-4 text-slate-400 font-bold">ANNULER</button>
+
+                <!-- 2. Type de lettre -->
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">2. Type de pli</label>
+                    <select id="mail-type" class="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 font-medium text-sm">
+                        <option value="Simple">Simple</option>
+                        <option value="Prior">Prior</option>
+                        <option value="Recommandé">Recommandé</option>
+                        <option value="Recommandé AR">Recommandé AR</option>
+                    </select>
                 </div>
-            </div>`;
+
+                <!-- 3. Expéditeur -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">3. Expéditeur</label>
+                    <input type="text" id="mail-sender" placeholder="Nom, Institution ou Entreprise..." class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition font-medium text-sm">
+                </div>
+
+                <!-- 4. Service destinataire -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">4. Service destinataire</label>
+                    <select id="mail-dest-service" class="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 font-medium text-sm">
+                        <option value="">Chargement des services...</option>
+                    </select>
+                </div>
+
+                <!-- 5. Description -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">5. Description de l'objet</label>
+                    <textarea id="mail-subject" rows="3" placeholder="Contenu sommaire ou référence du dossier..." class="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 font-medium text-sm"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-10 flex gap-4">
+                <button onclick="App.modules.entrants.save()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition shadow-xl shadow-blue-100 uppercase text-xs tracking-widest">
+                    Valider l'entrée
+                </button>
+                <button onclick="document.getElementById('modal-overlay').classList.replace('flex', 'hidden')" class="px-8 py-4 text-slate-400 font-bold hover:text-slate-600 transition text-xs uppercase tracking-widest">
+                    Annuler
+                </button>
+            </div>
+        </div>`;
     }, // <-- Virgule obligatoire ici
 
     // 4. HELPER DASHCARD
