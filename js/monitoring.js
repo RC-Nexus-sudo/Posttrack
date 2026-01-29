@@ -10,6 +10,7 @@ App.monitoring = {
             if (user) {
                 App.logger.log("Monitoring : Session validée, lancement des compteurs.", "debug");
                 this.renderStats();
+                this.initSearch();
             } else {
                 // Si déconnecté, on remet les compteurs à 0
                 const container = document.getElementById('quick-stats');
@@ -17,37 +18,6 @@ App.monitoring = {
             }
         });
     },
-
-    renderStats: function() {
-        const container = document.getElementById('quick-stats');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="flex gap-2 animate-fade-in">
-                <div class="stat-pill border bg-white px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-black shadow-sm">
-                    <i class="fa-solid fa-download text-blue-500"></i> Entrants: <span id="stat-in">...</span>
-                </div>
-            </div>`;
-
-        this.listenCollection('courriers_entrants', 'stat-in');
-    },
-
-    listenCollection: function(collectionName, elementId) {
-        if (!window.db) return;
-        
-        window.db.collection(collectionName).onSnapshot(snap => {
-            const el = document.getElementById(elementId);
-            if (el) {
-                el.innerText = snap.size;
-                // Petit effet visuel quand le chiffre change
-                el.classList.add('text-blue-600', 'scale-110');
-                setTimeout(() => el.classList.remove('text-blue-600', 'scale-110'), 300);
-            }
-        }, err => {
-            App.logger.log(`Erreur monitoring [${collectionName}] : ${err.message}`, "error");
-        });
-    }
-};
 
     renderStats: function() {
         const container = document.getElementById('quick-stats');
@@ -67,9 +37,10 @@ App.monitoring = {
             </div>
         `;
 
-        // Lancement direct des écouteurs
+        // Lancement des écouteurs en temps réel sur Firebase
         this.listenCollection('courriers_entrants', 'stat-in');
         this.listenCollection('courriers_sortants', 'stat-out');
+        // Optionnel : this.listenCollection('emails', 'stat-mail'); 
     },
 
     listenCollection: function(collectionName, elementId) {
@@ -77,9 +48,14 @@ App.monitoring = {
         
         window.db.collection(collectionName).onSnapshot(snap => {
             const el = document.getElementById(elementId);
-            if (el) el.innerText = snap.size;
+            if (el) {
+                el.innerText = snap.size;
+                // Petit effet visuel de mise à jour
+                el.classList.add('scale-110', 'text-blue-600');
+                setTimeout(() => el.classList.remove('scale-110', 'text-blue-600'), 300);
+            }
         }, err => {
-            App.logger.log("Erreur monitoring [" + collectionName + "]", "error");
+            App.logger.log("Erreur monitoring [" + collectionName + "] : " + err.message, "error");
         });
     },
 
@@ -87,9 +63,9 @@ App.monitoring = {
         const searchInput = document.querySelector('#monitoring-bar input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
+                // Logique de recherche à implémenter selon vos besoins
                 App.logger.log("Recherche: " + e.target.value, "debug");
             });
         }
     }
 };
-
