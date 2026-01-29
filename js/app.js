@@ -4,9 +4,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     App.logger.log("Système : Initialisation de l'application...", "info");
 
-    // Sécurité : On attend que Templates et Router soient bien chargés
+   // Sécurité : On attend que Templates, Router, ET les modules soient bien chargés
     const checkCore = setInterval(() => {
-        if (App.templates && App.router && App.router.routes) {
+        if (
+            App.templates && 
+            App.router && 
+            App.router.routes && 
+            App.modules && 
+            App.modules.entrants // Ajout de la vérification spécifique
+        ) {
             clearInterval(checkCore);
             bootApp(); // On lance l'application
         }
