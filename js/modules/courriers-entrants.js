@@ -6,38 +6,39 @@ var App = App || {};
 App.modules = App.modules || {};
 
 App.modules.entrants = {
-    // 1. Point d'entrée (appelé par le Router)
+    // Initialisation appelée par le Router
     init: function() {
         App.logger.log("Module Entrants : Initialisation du tableau...", "info");
         this.renderTable();
         this.fetchData();
     },
 
-    // 2. Construction de la structure du tableau
+    // Construction de la structure (Titres des colonnes)
     renderTable: function() {
         const container = document.getElementById('entrants-content');
         if (!container) return;
 
         container.innerHTML = `
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr class="text-[10px] uppercase tracking-widest text-slate-400">
-                            <th class="p-4 font-bold">Date</th>
-                            <th class="p-4 font-bold">Mode</th>
-                            <th class="p-4 font-bold">Expéditeur</th>
-                            <th class="p-4 font-bold">Service Destinataire</th>
-                            <th class="p-4 font-bold">Description</th>
+                        <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
+                            <th class="p-5">Date</th>
+                            <th class="p-5 text-center">Mode</th>
+                            <th class="p-5">Expéditeur & Type</th>
+                            <th class="p-5">Description</th>
+                            <th class="p-5">Destination</th>
+                            <th class="p-5 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="table-body-entrants" class="divide-y divide-slate-50">
-                        <tr><td colspan="5" class="p-10 text-center text-slate-300 italic">Connexion à la base de données...</td></tr>
+                        <tr><td colspan="6" class="p-10 text-center text-slate-300 italic">Connexion à Firestore...</td></tr>
                     </tbody>
                 </table>
             </div>`;
     },
 
-    // Helper pour les icônes de réception
+    // Helper pour les icônes
     getModeIcon: function(mode) {
         const icons = {
             'Direct': 'fa-hand-holding-dots text-slate-400',
@@ -49,6 +50,7 @@ App.modules.entrants = {
         return icons[mode] || 'fa-file text-slate-300';
     },
 
+    // Récupération des données
     fetchData: function() {
         const tbody = document.getElementById('table-body-entrants');
         if (!tbody) return;
@@ -74,19 +76,19 @@ App.modules.entrants = {
                         <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
                             <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
                             <td class="p-4 text-center">
-                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white transition shadow-sm" title="${mail.mode_reception}">
+                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm mx-auto">
                                     <i class="fa-solid ${modeIcon} text-xs"></i>
                                 </div>
                             </td>
                             <td class="p-4">
-                                <p class="text-sm font-black text-slate-800 leading-tight">${mail.expediteur}</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${mail.type_lettre}</p>
+                                <p class="text-sm font-black text-slate-800 leading-tight">${mail.expediteur || 'Inconnu'}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${mail.type_lettre || 'Simple'}</p>
                             </td>
-                            <td class="p-4 text-sm text-slate-500 max-w-xs truncate font-medium">${mail.objet}</td>
+                            <td class="p-4 text-sm text-slate-500 max-w-xs truncate font-medium">${mail.objet || 'Sans description'}</td>
                             <td class="p-4">
                                 <span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest" 
                                       style="background: ${color}10; border-color: ${color}; color: ${color}">
-                                    ${mail.service}
+                                    ${mail.service || 'N/A'}
                                 </span>
                             </td>
                             <td class="p-4 text-right">
@@ -101,18 +103,15 @@ App.modules.entrants = {
         });
     },
 
-    // 4. Ouverture du formulaire (Injecté dans la Modal)
+    // Ouverture du formulaire (Overlay)
     openForm: function() {
         const modal = document.getElementById('modal-overlay');
         const content = document.getElementById('modal-content');
-        
-        // On utilise un template dédié
         content.innerHTML = App.templates.entryForm();
         
-        // Remplissage du Select des services
         const select = document.getElementById('mail-dest-service');
         window.db.collection("services").get().then(snap => {
-            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            select.innerHTML = '<option value="">-- Sélectionner le service --</option>';
             snap.forEach(doc => {
                 select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
             });
@@ -121,30 +120,33 @@ App.modules.entrants = {
         modal.classList.replace('hidden', 'flex');
     },
 
-    // 5. Sauvegarde Firestore
+    // Sauvegarde Firestore
     save: function() {
-    const data = {
-        mode_reception: document.getElementById('mail-mode').value,
-        type_lettre: document.getElementById('mail-type').value,
-        expediteur: document.getElementById('mail-sender').value.trim(),
-        service: document.getElementById('mail-dest-service').value,
-        objet: document.getElementById('mail-subject').value.trim(),
-        statut: "Reçu",
-        agent_nom: window.auth.currentUser.email, // On trace qui a fait l'encodage
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
+        const data = {
+            mode_reception: document.getElementById('mail-mode').value,
+            type_lettre: document.getElementById('mail-type').value,
+            expediteur: document.getElementById('mail-sender').value.trim(),
+            service: document.getElementById('mail-dest-service').value,
+            objet: document.getElementById('mail-subject').value.trim(),
+            statut: "Reçu",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-    // Validation
-    if(!data.expediteur || !data.service || !data.objet) {
-        alert("Les champs Expéditeur, Service et Description sont obligatoires.");
-        return;
-    }
+        if(!data.expediteur || !data.service || !data.objet) {
+            alert("Veuillez remplir les champs obligatoires.");
+            return;
+        }
 
-    window.db.collection("courriers_entrants").add(data)
-        .then(() => {
-            App.logger.log(`✅ Courrier de [${data.expediteur}] enregistré via [${data.mode_reception}]`, "info");
+        window.db.collection("courriers_entrants").add(data).then(() => {
+            App.logger.log("✅ Courrier enregistré", "info");
             document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-        })
-        .catch(err => App.logger.log("Erreur Firestore : " + err.message, "error"));
-}
+        });
+    },
+
+    // Suppression
+    delete: function(id) {
+        if(confirm("Supprimer ce pli du registre ?")) {
+            window.db.collection("courriers_entrants").doc(id).delete();
+        }
+    }
 };
