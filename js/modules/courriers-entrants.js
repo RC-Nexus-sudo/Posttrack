@@ -193,8 +193,15 @@ center">
 
     // Suppression
     delete: function(id) {
-        if(confirm("Supprimer ce pli du registre ?")) {
-            window.db.collection("courriers_entrants").doc(id).delete();
-        }
+    if(confirm("Supprimer ce pli du registre ?")) {
+    window.db.collection("courriers_entrants").doc(id).delete();
     }
-};
+ },
+
+ // NOUVELLE FONCTION EDIT
+ edit: function(id) {
+    App.logger.log(`Ouverture édition ID: ${id}`, "info");
+    // TODO: Implémenter la logique pour ouvrir la modale et pré-remplir les champs
+    // Tu peux utiliser openForm() et charger les données du doc via Firebase ici.
+}
+}; // Fermeture finale de App.modules.entrants
