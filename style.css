@@ -76,7 +76,7 @@ body {
 
 /* --- Overlays & Modals --- */
 #modal-overlay {
-    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     transition: opacity 0.3s ease;
 }
 
