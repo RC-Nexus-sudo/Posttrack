@@ -6,6 +6,11 @@
 // Vos informations de connexion (à récupérer sur console.firebase.google.com)
 // js/firebase-config.js
 
+var App = App || {}; 
+
+// Déclaration de l'espace de nom App.utils s'il n'existe pas
+App.utils = App.utils || {};
+
 const firebaseConfig = {
     apiKey: "AIzaSyBv7NP2Mxt8QslKpVl6Ik4Uk76DGoIP1ds",
     authDomain: "posttrack-fcb9b.firebaseapp.com",
