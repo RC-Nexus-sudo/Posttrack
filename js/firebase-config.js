@@ -20,6 +20,25 @@ const firebaseConfig = {
     appId: "1:298056968036:web:7b76259843af13fc2c7c71"
 };
 
+App.utils.getNewIndicator = async function() {
+    // Référence au document 'compteur' dans la collection 'compteurs' (ajustez le nom de la collection si nécessaire)
+    const counterRef = window.db.collection("compteurs").doc("courriersEntrants");
+
+    try {
+        const newIndicator = await window.db.runTransaction(async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+
+            if (!counterDoc.exists) {
+                // Initialise le compteur s'il n'existe pas
+                transaction.set(counterRef, { currentCount: 1 });
+                return 1;
+            }
+
+            const newCount = counterDoc.data().currentCount + 1;
+            transaction.update(counterRef, { currentCount: newCount });
+            return newCount;
+        });
+        
 // Fonction d'initialisation sécurisée
 function initFirebase() {
     try {
@@ -46,24 +65,6 @@ function initFirebase() {
         }
     }
 }
-App.utils.getNewIndicator = async function() {
-    // Référence au document 'compteur' dans la collection 'compteurs' (ajustez le nom de la collection si nécessaire)
-    const counterRef = window.db.collection("compteurs").doc("courriersEntrants");
-
-    try {
-        const newIndicator = await window.db.runTransaction(async (transaction) => {
-            const counterDoc = await transaction.get(counterRef);
-
-            if (!counterDoc.exists) {
-                // Initialise le compteur s'il n'existe pas
-                transaction.set(counterRef, { currentCount: 1 });
-                return 1;
-            }
-
-            const newCount = counterDoc.data().currentCount + 1;
-            transaction.update(counterRef, { currentCount: newCount });
-            return newCount;
-        });
 
         // Formate le numéro sur 6 chiffres (ex: 000142)
         return String(newIndicator).padStart(6, '0');
