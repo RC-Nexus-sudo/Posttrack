@@ -184,7 +184,7 @@ App.modules.entrants = {
     },
 
     // Sauvegarde Firestore (Simplifiée pour Cloud Function)
-    save: async function() {
+    async save() {
     const user = window.auth.currentUser;
     const saveButton = document.getElementById('save-mail-btn');
     const editId = saveButton.getAttribute('data-edit-id'); 
@@ -227,7 +227,7 @@ App.modules.entrants = {
         App.logger.log("Une erreur est survenue lors de la sauvegarde: " + error.message, "error");
         alert("Une erreur est survenue. Consultez la console de logs.");
     }
-};
+},
     // Suppression 
     delete: function(id) {
         if(confirm("Supprimer ce pli du registre ?")) {
