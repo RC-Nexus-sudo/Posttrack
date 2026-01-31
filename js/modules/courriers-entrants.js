@@ -131,6 +131,7 @@ App.modules.entrants = {
  },
  // Ouverture du formulaire (Overlay)
  openForm: function(docId = null) {
+  docId = (typeof docId !== 'undefined') ? docId : null;
   const modal = document.getElementById('modal-overlay');
   const content = document.getElementById('modal-content');
   content.innerHTML = App.templates.entryForm();
