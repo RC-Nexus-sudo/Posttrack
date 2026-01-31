@@ -208,7 +208,7 @@ App.modules.entrants = {
      try {
         if (editId) {
             // Mode mise à jour (inchangé)
-            await window.db.collection("courriers_entrants").doc(editId).update(data);
+            await window.db.collection("courriers_entrants").doc(editId).update(baseData);
             App.logger.log("✅Courrier mis à jour", "info");
             document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
         } else {
@@ -216,10 +216,10 @@ App.modules.entrants = {
             App.logger.log("Génération de l'indicateur unique...", "debug");
             // App.utils.getNewIndicator est la fonction utilitaire de la réponse précédente
             const indicateurValue = await App.utils.getNewIndicator(); 
-            data.indicateur = indicateurValue; // <-- AJOUTEZ LE NOUVEAU CHAMP
-            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
+            baseData.indicateur = indicateurValue; // <-- AJOUTEZ LE NOUVEAU CHAMP
+            baseData.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
             
-            await window.db.collection("courriers_entrants").add(data); //
+            await window.db.collection("courriers_entrants").add(baseData); //
             App.logger.log(`✅Courrier ${indicateurValue} enregistré`, "info");
             document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
         }
