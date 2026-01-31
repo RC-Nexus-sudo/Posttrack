@@ -109,11 +109,9 @@ App.modules.entrants = {
             serviceSnap.forEach(doc => serviceMap[doc.id] = doc.data().color);
             window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 if (snap.empty) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
                     return;
-                        window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => {
                 }
-                                                                                                           
                 let html = "";
                 snap.forEach(doc => {
                     const mail = doc.data();
@@ -125,8 +123,7 @@ App.modules.entrants = {
                     html += `
                     <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
                     <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
-                    <!-- NOUVELLE CELLULE POUR LA RÉFÉRENCE -->
-                    <td class="p-4 text-xs font-bold text-slate-600">${mail.reference || 'N/A'}</td>
+                    <td class="p-4 text-center">
                     <div class="w-8 h-8 rounded-lg ${this.getModeStyle(mail.mode_reception)} flex items-center justify-center border border-slate-100 shadow-sm mx-auto">
                     <i class="fa-solid ${modeIcon} text-xs"></i>
                     </div>
@@ -146,7 +143,7 @@ App.modules.entrants = {
                     <td class="p-4 text-[10px] text-slate-400">${updateDate}</td>
                     <td class="p-4 text-right flex justify-end gap-2">
                     <button onclick="App.modules.entrants.edit('${doc.id}')" class="w-8 h-8 rounded-xl hover:bg-blue-50 hover:text-blue-500 text-slate-400 transition flex items-center justify-center">
-                    <i class="fa-solid fa-pencil text-xs"></i>
+                        <i class="fa-solid fa-pencil text-xs"></i>
                     </button>
                     <button onclick="App.modules.entrants.delete('${doc.id}')" class="w-8 h-8 rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-300 transition flex items-center justify-center">
                     <i class="fa-solid fa-trash-can text-xs"></i>
