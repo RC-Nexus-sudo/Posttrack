@@ -20,8 +20,8 @@ App.modules.entrants = {
         <table class="w-full text-left border-collapse">
         <thead class="bg-slate-50 border-b border-slate-100">
         <tr class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black">
-        <th class="p-5">Date</th>
         <th class="p-5">Référence</th> <!-- NOUVELLE COLONNE -->
+        <th class="p-5">Date</th>
         <th class="p-5 text-center">Mode</th>
         <th class="p-5">Expéditeur & Type</th>
         <th class="p-5">Description</th>
@@ -122,6 +122,7 @@ App.modules.entrants = {
                     
                     html += `
                     <tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">
+                    <td class="p-4 text-sm font-bold text-blue-600">${mail.indicateur || 'N/A'}</td>
                     <td class="p-4 text-[10px] font-mono text-slate-400 uppercase">${date}</td>
                     <td class="p-4 text-center">
                     <div class="w-8 h-8 rounded-lg ${this.getModeStyle(mail.mode_reception)} flex items-center justify-center border border-slate-100 shadow-sm mx-auto">
@@ -183,7 +184,7 @@ App.modules.entrants = {
     },
 
     // Sauvegarde Firestore (Simplifiée pour Cloud Function)
-    save: function() {
+    save: async function() {
     const user = window.auth.currentUser;
     const saveButton = document.getElementById('save-mail-btn');
     const editId = saveButton.getAttribute('data-edit-id'); 
@@ -204,31 +205,29 @@ App.modules.entrants = {
         return;
     }
 
-    if (editId) {
-        // Mode édition (inchangé, on ne modifie pas le numéro d'enregistrement)
-        window.db.collection("courriers_entrants").doc(editId).update(baseData).then(() => {
+     try {
+        if (editId) {
+            // Mode mise à jour (inchangé)
+            await window.db.collection("courriers_entrants").doc(editId).update(data);
             App.logger.log("✅Courrier mis à jour", "info");
             document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-        });
-    } else {
-        // Mode ajout : On appelle la fonction de compteur avant d'ajouter le document
-        this.getNextSequence().then(referenceId => {
-            if (!referenceId) return; // Si la transaction a échoué
-
-            // Ajoute le nouveau champ "reference" ou "num_enregistrement" aux données
-            const finalData = {
-                ...baseData,
-                reference: referenceId, // C'est ici qu'on ajoute le numéro unique
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            };
-
-            window.db.collection("courriers_entrants").add(finalData).then(() => {
-                App.logger.log(`✅Courrier enregistré (Réf: ${referenceId})`, "info");
-                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-            });
-        });
+        } else {
+            // Mode ajout : Générer l'indicateur d'abord
+            App.logger.log("Génération de l'indicateur unique...", "debug");
+            // App.utils.getNewIndicator est la fonction utilitaire de la réponse précédente
+            const indicateurValue = await App.utils.getNewIndicator(); 
+            data.indicateur = indicateurValue; // <-- AJOUTEZ LE NOUVEAU CHAMP
+            data.timestamp = firebase.firestore.FieldValue.serverTimestamp(); 
+            
+            await window.db.collection("courriers_entrants").add(data); //
+            App.logger.log(`✅Courrier ${indicateurValue} enregistré`, "info");
+            document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+        }
+    } catch (error) {
+        App.logger.log("Une erreur est survenue lors de la sauvegarde: " + error.message, "error");
+        alert("Une erreur est survenue. Consultez la console de logs.");
     }
-},
+};
     // Suppression 
     delete: function(id) {
         if(confirm("Supprimer ce pli du registre ?")) {
