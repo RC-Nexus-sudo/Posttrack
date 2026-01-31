@@ -1,6 +1,11 @@
 /**
  * Chef d'orchestre de l'application SGC
  */
+var App = App || {}; 
+
+// Déclaration de l'espace de nom App.utils s'il n'existe pas
+App.utils = App.utils || {};
+
 document.addEventListener('DOMContentLoaded', () => {
     App.logger.log("Système : Initialisation de l'application...", "info");
 
