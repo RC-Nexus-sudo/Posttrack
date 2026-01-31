@@ -77,8 +77,10 @@ App.modules.entrants = {
   window.db.collection("services").get().then(serviceSnap => {
   const serviceMap = {};
   serviceSnap.forEach(doc => serviceMap[doc.id] = doc.data().color);
-  window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap 
-  => {
+  window.db.collection("services").get().then(serviceSnap => {
+  const serviceMap = {};
+  serviceSnap.forEach(doc => serviceMap[doc.id] = doc.data().color);
+  window.db.collection("courriers_entrants").orderBy("timestamp", "desc").onSnapshot(snap => { 
   if (snap.empty) {
   tbody.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-slate-400 italic">Aucun pli enregistré.</td></tr>';
   return;
