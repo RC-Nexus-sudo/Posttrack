@@ -150,11 +150,6 @@ tracking-widest">
   Annuler
   </button>
   </div>
-
-  <!-- AJOUT DE LA BARRE DE PROGRÈS -->
-  <progress id="upload-progress" value="0" max="100" class="w-full mt-4 h-1 bg-gray-200 rounded-full overflow-hidden hidden"></progress>
-  <!-- FIN AJOUT -->
-
   </div>`;
  },
  // 4. HELPER DASHCARD (inchangé)
