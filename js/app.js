@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             App.templates &&
             App.router &&
             App.router.routes &&
-            App.modules &&
-            App.modules.entrants // Ajout de la vérification spécifique
+            App.modules
         ) {
             clearInterval(checkCore);
             bootApp(); // On lance l'application
