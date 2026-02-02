@@ -114,10 +114,10 @@ App.modules.entrants = {
   html += '<td class="p-4 text-right flex justify-end gap-2">';
   
   // --- NOUVEAUTÉ : AJOUT DU BOUTON OEIL POUR FICHIER JOINT ---
-  if (mail.fileURL) {
-  html += '<a href="' + mail.fileURL + '" target="_blank" class="w-8 h-8 rounded-xl hover:bg-blue-50 hover:text-blue-500 text-slate-400 transition flex items-center justify-center" title="Voir le document">';
-  html += '<i class="fa-solid fa-eye text-xs"></i>';
-  html += '</a>';
+  if (mail.fileBase64) { 
+    html += '<button onclick="App.modules.entrants.viewFile(\'' + mail.fileBase64 + '\', \'' + mail.fileName + '\')" class="w-8 h-8 rounded-xl hover:bg-blue-50 hover:text-blue-500 text-slate-400 transition flex items-center justify-center" title="Voir le document">';
+    html += '<i class="fa-solid fa-eye text-xs"></i>';
+    html += '</button>';
   }
   // --- FIN AJOUT ---
 
@@ -134,6 +134,21 @@ App.modules.entrants = {
   }.bind(this)); // Ajout de .bind(this) pour conserver le contexte 'this' dans onSnapshot
   }.bind(this)); // Ajout de .bind(this) pour conserver le contexte 'this' dans le premier then
  },
+
+ // Helper pour visualiser le fichier Base64
+ viewFile: function(base64Data, fileName) {
+    // Crée un objet Blob à partir de la chaîne Base64 pour l'ouvrir dans un nouvel onglet
+    // Note: window.atob et Blob supportent les navigateurs modernes
+    var arr = base64Data.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr = bstr.charCodeAt(n);
+    }
+    var blob = new Blob([u8arr], {type: mime});
+    var fileURL = URL.createObjectURL(blob);
+    window.open(fileURL, '_blank');
+ },
+ 
  // Ouverture du formulaire (Overlay)
  openForm: function(docId) { /* ... inchangé sauf l'appel à entryForm qui contient maintenant l'input file ... */
   docId = docId || null;
@@ -166,15 +181,15 @@ App.modules.entrants = {
   var user = window.auth.currentUser;
   var saveButton = document.getElementById('save-mail-btn');
   var editId = saveButton.getAttribute('data-edit-id');
-  var fileInput = document.getElementById('mail-file'); // Récupère l'input fichier
-  var file = fileInput.files[0]; // Récupère le premier fichier sélectionné
+  var fileInput = document.getElementById('mail-file');
+  var file = fileInput.files[0]; // Correction: prend le premier fichier
 
   var baseData = {
   mode_reception: document.getElementById('mail-mode').value,
   type_lettre: document.getElementById('mail-type').value,
   expediteur: document.getElementById('mail-sender').value.trim(),
   service: document.getElementById('mail-dest-service').value,
-  objet: document.getElementById('mail-subject').value.trim(),
+  objet: document.getElementById('mail-subject').value.trim(), 
   statut: "Reçu",
   updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   encodedBy: user ? (user.displayName || user.email) : "Anonyme",
@@ -184,12 +199,9 @@ App.modules.entrants = {
   return;
   }
   
-  var uploadProgress = document.getElementById('upload-progress'); // Récupère la barre de progrès
-
-  // Fonction interne pour sauvegarder dans Firestore une fois l'upload terminé (ou s'il n'y a pas de fichier)
-  var saveToFirestore = function(downloadURL, fileName) {
-      if (downloadURL && fileName) {
-          baseData.fileURL = downloadURL; // Ajoute l'URL du fichier à la base de données
+  var saveToFirestore = function(base64Data, fileName) {
+      if (base64Data && fileName) {
+          baseData.fileBase64 = base64Data; // Stocke la chaîne Base64
           baseData.fileName = fileName;
       }
 
@@ -247,6 +259,23 @@ App.modules.entrants = {
       );
   } else {
       saveToFirestore(null, null); // Pas de fichier, sauvegarde directe dans Firestore
+  }
+ },
+
+ // Logique de conversion Base64 si un fichier est sélectionné
+  if (file) {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        App.logger.log("Conversion du fichier en Base64...", "debug");
+        saveToFirestore(event.target.result, file.name); // Appelle la sauvegarde avec la donnée
+    };
+    reader.onerror = function(error) {
+        App.logger.log("Erreur de lecture de fichier: " + error, "error");
+        saveToFirestore(null, null);
+    };
+    reader.readAsDataURL(file); // Lance la lecture en Base64
+  } else {
+    saveToFirestore(null, null); // Pas de fichier, sauvegarde directe
   }
  },
  
