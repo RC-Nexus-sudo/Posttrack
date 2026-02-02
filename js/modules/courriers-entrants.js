@@ -200,67 +200,52 @@ App.modules.entrants = {
   }
   
   var saveToFirestore = function(base64Data, fileName) {
-      if (base64Data && fileName) {
-          baseData.fileBase64 = base64Data; // Stocke la chaîne Base64
-          baseData.fileName = fileName;
-      }
+    if (base64Data && fileName) {
+        baseData.fileBase64 = base64Data; // Stocke la chaîne Base64
+        baseData.fileName = fileName;
+    }
 
-      try {
-          if (editId) {
-              window.db.collection("courriers_entrants").doc(editId).update(baseData).then(function() {
-                  App.logger.log("✅Courrier mis à jour", "info");
-                  document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-                  uploadProgress.classList.add('hidden');
-              });
-          } else {
-              App.logger.log("Génération de l'indicateur unique...", "debug");
-              App.utils.getNewIndicator().then(function(indicateurValue) {
-                  baseData.indicateur = indicateurValue;
-                  baseData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
-                  window.db.collection("courriers_entrants").add(baseData).then(function() {
-                      App.logger.log("✅Courrier " + indicateurValue + " enregistré", "info");
-                      document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-                      uploadProgress.classList.add('hidden');
-                  });
-              });
-          }
-      } catch (error) {
-          App.logger.log("Une erreur est survenue lors de la sauvegarde: " + error.message, "error");
-          alert("Une erreur est survenue. Consultez la console de logs.");
-          uploadProgress.classList.add('hidden');
-      }
-  };
+    try {
+        if (editId) {
+            window.db.collection("courriers_entrants").doc(editId).update(baseData).then(function() {
+                App.logger.log("✅Courrier mis à jour", "info");
+                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+                uploadProgress.classList.add('hidden');
+            });
+        } else {
+            App.logger.log("Génération de l'indicateur unique...", "debug");
+            App.utils.getNewIndicator().then(function(indicateurValue) {
+                baseData.indicateur = indicateurValue;
+                baseData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                window.db.collection("courriers_entrants").add(baseData).then(function() {
+                    App.logger.log("✅Courrier " + indicateurValue + " enregistré", "info");
+                    document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+                    uploadProgress.classList.add('hidden');
+                });
+            });
+        }
+    } catch (error) {
+        App.logger.log("Une erreur est survenue lors de la sauvegarde: " + error.message, "error");
+        alert("Une erreur est survenue. Consultez la console de logs.");
+        uploadProgress.classList.add('hidden');
+    }
+};
 
-  // Logique d'upload si un fichier est sélectionné
-  if (file) {
-      var storageRef = window.storage.ref('courriers_entrants/' + Date.now() + '_' + file.name); // Crée une référence unique
-      var uploadTask = storageRef.put(file);
-
-      uploadProgress.classList.remove('hidden');
-
-      uploadTask.on('state_changed',
-          function(snapshot) { // Progression de l'upload
-              var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              uploadProgress.value = progress;
-              // App.logger.log('Progression upload: ' + progress.toFixed(0) + '%', 'debug');
-          },
-          function(error) { // Gestion des erreurs d'upload
-              App.logger.log("Erreur d'upload: " + error.message, 'error');
-              alert("Erreur lors du téléchargement du fichier.");
-              uploadProgress.classList.add('hidden');
-              saveToFirestore(null, null); // Sauvegarder les données sans le fichier si l'upload échoue
-          },
-          function() { // Upload réussi, récupérer l'URL de téléchargement
-              uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                  App.logger.log("Fichier téléchargé avec succès.", 'info');
-                  saveToFirestore(downloadURL, file.name); // Sauvegarder dans Firestore AVEC l'URL
-              });
-          }
-      );
-  } else {
-      saveToFirestore(null, null); // Pas de fichier, sauvegarde directe dans Firestore
-  }
- },
+// Logique de traitement (Choisissez Base64 OU Storage, ici Base64 selon votre dernier bloc)
+if (file) {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        App.logger.log("Conversion du fichier en Base64...", "debug");
+        saveToFirestore(event.target.result, file.name);
+    };
+    reader.onerror = function(error) {
+        App.logger.log("Erreur de lecture de fichier: " + error, "error");
+        saveToFirestore(null, null);
+    };
+    reader.readAsDataURL(file);
+} else {
+    saveToFirestore(null, null);
+}
 
  // Logique de conversion Base64 si un fichier est sélectionné
   if (file) {
