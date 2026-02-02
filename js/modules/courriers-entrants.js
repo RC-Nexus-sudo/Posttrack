@@ -201,16 +201,15 @@ App.modules.entrants = {
   
   var saveToFirestore = function(base64Data, fileName) {
     if (base64Data && fileName) {
-        baseData.fileBase64 = base64Data; // Stocke la chaîne Base64
+        baseData.fileBase64 = base64Data; // Stockage direct dans le document
         baseData.fileName = fileName;
     }
 
     try {
         if (editId) {
             window.db.collection("courriers_entrants").doc(editId).update(baseData).then(function() {
-                App.logger.log("✅Courrier mis à jour", "info");
-                document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-                uploadProgress.classList.add('hidden');
+                App.logger.log("✅ Courrier mis à jour", "info");
+                finaliserAction();
             });
         } else {
             App.logger.log("Génération de l'indicateur unique...", "debug");
@@ -218,18 +217,44 @@ App.modules.entrants = {
                 baseData.indicateur = indicateurValue;
                 baseData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                 window.db.collection("courriers_entrants").add(baseData).then(function() {
-                    App.logger.log("✅Courrier " + indicateurValue + " enregistré", "info");
-                    document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
-                    uploadProgress.classList.add('hidden');
+                    App.logger.log("✅ Courrier " + indicateurValue + " enregistré", "info");
+                    finaliserAction();
                 });
             });
         }
     } catch (error) {
-        App.logger.log("Une erreur est survenue lors de la sauvegarde: " + error.message, "error");
-        alert("Une erreur est survenue. Consultez la console de logs.");
+        App.logger.log("Erreur Firestore: " + error.message, "error");
+        alert("Erreur lors de la sauvegarde.");
         uploadProgress.classList.add('hidden');
     }
 };
+
+var finaliserAction = function() {
+    document.getElementById('modal-overlay').classList.replace('flex', 'hidden');
+    if(typeof uploadProgress !== 'undefined') uploadProgress.classList.add('hidden');
+};
+
+// LOGIQUE UNIQUE : Conversion Base64 (Gratuit, utilise uniquement le quota Firestore)
+if (file) {
+    var reader = new FileReader();
+    
+    // On affiche une barre de chargement visuelle (facultatif)
+    if(typeof uploadProgress !== 'undefined') uploadProgress.classList.remove('hidden');
+
+    reader.onload = function(event) {
+        App.logger.log("Conversion Base64 terminée, envoi vers Firestore...", "debug");
+        saveToFirestore(event.target.result, file.name);
+    };
+
+    reader.onerror = function(error) {
+        App.logger.log("Erreur de lecture du fichier: " + error, "error");
+        saveToFirestore(null, null);
+    };
+
+    reader.readAsDataURL(file); // Déclenche la lecture
+} else {
+    saveToFirestore(null, null); // Pas de fichier, sauvegarde simple
+}
 
 // Logique de traitement (Choisissez Base64 OU Storage, ici Base64 selon votre dernier bloc)
 if (file) {
