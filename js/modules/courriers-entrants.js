@@ -91,12 +91,12 @@ App.modules.entrants = {
                 var html = "";
                 snap.forEach(function(doc) {
                     var mail = doc.data();
-                    var dateObj = convertFirestoreTimestampToDate(mail.timestamp);
+                    var dateObj = App.utils.convertFirestoreTimestampToDate(mail.timestamp);
                     var date = 'N/A'; // Texte à afficher par défaut
 
                         if (dateObj && !isNaN(dateObj.getTime())) {
-                            date = dateObj.toLocaleDateString('fr-BE');
-                            }
+                        date = dateObj.toLocaleDateString('fr-BE');
+                        }
                     var color = serviceMap[mail.service] || '#cbd5e1';
                             // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
