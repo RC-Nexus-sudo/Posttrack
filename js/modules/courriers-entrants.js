@@ -223,7 +223,7 @@ App.modules.entrants = {
         
         var saveToFirestore = function(base64Data, fileName) {
             // CRUCIAL : Copie profonde pour éviter les références et les doublons
-            var dataToSend = JSON.parse(JSON.stringify(baseData)); 
+            var dataToSend = Object.assign({}, baseData); 
 
             if (base64Data && fileName) {
                 dataToSend.fileBase64 = base64Data;
