@@ -100,10 +100,10 @@ App.modules.entrants = {
                     var color = serviceMap[mail.service] || '#cbd5e1';
                             // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
-                    var updateDate = '-';
-                        if (mail.updatedAt) {
-                            // Faites de même pour updatedAt
-                            var updatedAtObj = App.utils.convertFirestoreTimestampToDate(mail.updatedAt);
+                    var updatedAtObj = App.utils.convertFirestoreTimestampToDate(mail.updatedAt);
+                    var updateDate = '-'; // Valeur par défaut
+
+                        if (updatedAtObj && !isNaN(updatedAtObj.getTime())) {
                             updateDate = updatedAtObj.toLocaleDateString('fr-BE');
                             }
                     
