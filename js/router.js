@@ -24,6 +24,7 @@ App.router = {
 
             const view = this.routes[routeId];
    if (!view) throw new Error(`Route "${routeId}" non définie.`);
+            document.getElementById('app-view').innerHTML = '';
 
    // 1. Mise à jour de l'interface (Active state sur la sidebar)
    this.updateSidebarUI(routeId);
