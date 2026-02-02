@@ -1,6 +1,10 @@
 /**
  * Chef d'orchestre de l'application SGC
  */
+if (!App.utils) {
+    App.utils = {};
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     App.logger.log("Système : Initialisation de l'application...", "info");
 
