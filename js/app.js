@@ -60,4 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
             setInterval(updateClock, 1000);
         }
     }
+
+    function convertFirestoreTimestampToDate(timestamp) {
+    if (!timestamp) {
+        return null;
+    }
+    // Si c'est déjà un objet Date (peu probable avec les nouvelles versions de Firestore par défaut)
+    if (timestamp instanceof Date) {
+        return timestamp;
+    }
+    // Si la méthode toDate() existe, l'utiliser (comportement attendu)
+    if (typeof timestamp.toDate === 'function') {
+        return timestamp.toDate();
+    }
+    // Si c'est un objet brut { seconds, nanoseconds } (e.g., après sérialisation JSON)
+    if (timestamp.seconds !== undefined) {
+        return new Date(timestamp.seconds * 1000);
+    }
+    return null; // Retourne null si le format est inconnu
+}
 });
