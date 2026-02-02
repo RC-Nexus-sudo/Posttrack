@@ -1,3 +1,10 @@
+// Attendre que tout le DOM et tous les scripts (y compris firebase-config.js) soient chargés
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log("DOM complètement chargé. Initialisation de la page de connexion.");
+
+    // Maintenant, nous sommes sûrs que firebase.initializeApp() a été appelé
+});
+
 function loginUser() {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
