@@ -23,27 +23,47 @@ App.router = {
             }
 
             const view = this.routes[routeId];
-            if (!view) throw new Error(`Route "${routeId}" non définie.`);
+   if (!view) throw new Error(`Route "${routeId}" non définie.`);
 
-            // 1. Mise à jour de l'interface (Active state sur la sidebar)
-            this.updateSidebarUI(routeId);
+   // 1. Mise à jour de l'interface (Active state sur la sidebar)
+   this.updateSidebarUI(routeId);
 
-            // 2. Injection du template via App.templates
-            const mainDisplay = document.getElementById('app-view');
-            if (!mainDisplay) throw new Error("Conteneur 'app-view' introuvable.");
-            
-            mainDisplay.innerHTML = App.templates.renderView(routeId, view.title);
+   // --- NOUVELLE LOGIQUE D'AFFICHAGE/MASQUAGE DES CONTENEURS ---
+   const allContentViews = document.querySelectorAll('#app-view > div');
+   // Masquer tous les conteneurs de contenu par défaut
+   allContentViews.forEach(container => {
+    container.classList.add('hidden');
+    container.classList.remove('flex'); // S'assurer que flex est retiré si utilisé pour l'affichage
+   });
 
-            // 3. Log de l'action
-            App.logger.log(`Navigation vers : ${view.title}`, 'info');
+   // Afficher uniquement le conteneur cible (convention: [routeId]-content)
+   const targetContainerId = `${routeId}-content`;
+   const targetContainer = document.getElementById(targetContainerId);
 
-            // 4. Charger les données spécifiques au module
-            this.loadModuleData(routeId);
+   if (!targetContainer) throw new Error(`Conteneur "${targetContainerId}" introuvable.`);
+   
+   // Si le conteneur est vide, injecter le template initial
+   if (!targetContainer.hasChildNodes()) {
+        targetContainer.innerHTML = App.templates.renderView(routeId, view.title);
+   }
 
-        } catch (error) {
-            App.logger.log(`Erreur de routage : ${error.message}`, 'error');
-        }
-    },
+   // Rendre le conteneur cible visible
+   targetContainer.classList.remove('hidden');
+   // Vous pouvez utiliser 'block', 'flex', ou autre selon votre framework CSS (Tailwind)
+   // Par exemple: targetContainer.classList.add('flex'); 
+
+   // --- FIN NOUVELLE LOGIQUE ---
+   
+   // 2. Log de l'action
+   App.logger.log(`Navigation vers : ${view.title}`, 'info');
+
+   // 3. Charger les données spécifiques au module
+   this.loadModuleData(routeId);
+  } catch (error) {
+   App.logger.log(`Erreur de routage : ${error.message}`, 'error');
+   App.utils.displayModuleError(routeId, error.message); // Utilisation de la fonction d'erreur
+  }
+ },
 
     updateSidebarUI: function(activeId) {
         // On retire le style actif de TOUS les boutons
