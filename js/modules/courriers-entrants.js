@@ -91,12 +91,21 @@ App.modules.entrants = {
                 var html = "";
                 snap.forEach(function(doc) {
                     var mail = doc.data();
-                    var date = '...';
-                        if (mail.timestamp) {
-                            // Si c'est un objet Timestamp natif, utilisez toDate(). Sinon, construisez manuellement.
-                            var timestampObj = typeof mail.timestamp.toDate === 'function' ? mail.timestamp.toDate() : new Date(mail.timestamp.seconds * 1000);
-                            date = timestampObj.toLocaleDateString('fr-BE');
-                            }
+                    var date = 'N/A'; // Valeur par défaut si la date est invalide ou manquante
+                            if (mail.timestamp) {
+                                var timestampObj;
+                                if (typeof mail.timestamp.toDate === 'function') {
+                                    timestampObj = mail.timestamp.toDate();
+                                } else if (mail.timestamp.seconds) {
+                                    // Pour les anciens formats de timestamp bruts si nécessaire
+                                    timestampObj = new Date(mail.timestamp.seconds * 1000);
+                                }
+
+    // Vérifier si l'objet Date est valide avant de formater
+    if (timestampObj instanceof Date && !isNaN(timestampObj.getTime())) {
+        date = timestampObj.toLocaleDateString('fr-BE');
+    }
+}
                     var color = serviceMap[mail.service] || '#cbd5e1';
                             // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
