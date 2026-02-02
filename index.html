@@ -71,9 +71,16 @@
             </div>
 
             <!-- Main Content Area -->
-            <section id="app-view" class="flex-1 p-6 overflow-y-auto bg-[#F1F5F9]">
-                <!-- Les widgets Bento et formulaires s'injectent ici via le Router -->
-            </section>
+                <section id="app-view" class="flex-1 p-6 overflow-y-auto bg-[#F1F5F9]">
+                        <!-- Conteneur pour le tableau de bord -->
+                        <div id="dashboard-content" class="hidden"></div>
+                        <!-- Conteneur pour les courriers entrants -->
+                        <div id="entrants-content" class="hidden"></div>
+                        <!-- Conteneur pour les courriers sortants (si vous l'ajoutez plus tard) -->
+                        <!-- <div id="sortants-content" class="hidden"></div> -->
+    
+                        <!-- Section vide, le routeur gérera l'affichage/masquage des divs ci-dessus -->
+                </section>
 
             <!-- Console Logs -->
             <footer id="debug-console" class="h-32 bg-slate-950 text-emerald-400 text-[11px] p-3 overflow-y-auto font-mono border-t border-slate-800">
