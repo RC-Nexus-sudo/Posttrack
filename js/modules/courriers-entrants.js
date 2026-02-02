@@ -91,21 +91,12 @@ App.modules.entrants = {
                 var html = "";
                 snap.forEach(function(doc) {
                     var mail = doc.data();
-                    var date = 'N/A'; // Valeur par défaut si la date est invalide ou manquante
-                            if (mail.timestamp) {
-                                var timestampObj;
-                                if (typeof mail.timestamp.toDate === 'function') {
-                                    timestampObj = mail.timestamp.toDate();
-                                } else if (mail.timestamp.seconds) {
-                                    // Pour les anciens formats de timestamp bruts si nécessaire
-                                    timestampObj = new Date(mail.timestamp.seconds * 1000);
-                                }
+                    var dateObj = convertFirestoreTimestampToDate(mail.timestamp);
+                    var date = 'N/A'; // Texte à afficher par défaut
 
-    // Vérifier si l'objet Date est valide avant de formater
-    if (timestampObj instanceof Date && !isNaN(timestampObj.getTime())) {
-        date = timestampObj.toLocaleDateString('fr-BE');
-    }
-}
+                        if (dateObj && !isNaN(dateObj.getTime())) {
+                            date = dateObj.toLocaleDateString('fr-BE');
+                            }
                     var color = serviceMap[mail.service] || '#cbd5e1';
                             // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
