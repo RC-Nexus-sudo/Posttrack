@@ -103,7 +103,7 @@ App.modules.entrants = {
                     var updateDate = '-';
                         if (mail.updatedAt) {
                             // Faites de même pour updatedAt
-                            var updatedAtObj = typeof mail.updatedAt.toDate === 'function' ? mail.updatedAt.toDate() : new Date(mail.updatedAt.seconds * 1000);
+                            var updatedAtObj = App.utils.convertFirestoreTimestampToDate(mail.updatedAt);
                             updateDate = updatedAtObj.toLocaleDateString('fr-BE');
                             }
                     
