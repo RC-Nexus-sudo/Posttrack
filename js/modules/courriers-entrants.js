@@ -91,11 +91,21 @@ App.modules.entrants = {
                 var html = "";
                 snap.forEach(function(doc) {
                     var mail = doc.data();
-                    var date = mail.timestamp ? mail.timestamp.toDate().toLocaleDateString('fr-BE') : '...';
+                    var date = '...';
+                        if (mail.timestamp) {
+                            // Si c'est un objet Timestamp natif, utilisez toDate(). Sinon, construisez manuellement.
+                            var timestampObj = typeof mail.timestamp.toDate === 'function' ? mail.timestamp.toDate() : new Date(mail.timestamp.seconds * 1000);
+                            date = timestampObj.toLocaleDateString('fr-BE');
+                            }
                     var color = serviceMap[mail.service] || '#cbd5e1';
-                    // Assurez-vous que le champ utilisé ici est 'mode_reception'
+                            // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
-                    var updateDate = mail.updatedAt ? mail.updatedAt.toDate().toLocaleDateString('fr-BE') : '-';
+                    var updateDate = '-';
+                        if (mail.updatedAt) {
+                            // Faites de même pour updatedAt
+                            var updatedAtObj = typeof mail.updatedAt.toDate === 'function' ? mail.updatedAt.toDate() : new Date(mail.updatedAt.seconds * 1000);
+                            updateDate = updatedAtObj.toLocaleDateString('fr-BE');
+                            }
                     
                     html += '<tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">';
                     html += '<td class="p-4 text-sm font-bold text-blue-600">' + (mail.indicateur || 'N/A') + '</td>';
