@@ -206,6 +206,8 @@ App.modules.entrants = {
             statut: "Reçu",
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             encodedBy: user ? (user.displayName || user.email) : "Anonyme",
+            fileName: null,
+            fileBase64: null
         };
 
         if(!baseData.expediteur || !baseData.service || !baseData.objet) {
