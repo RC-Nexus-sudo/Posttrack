@@ -14,6 +14,25 @@ App.router = {
         'parametres': { title: 'Administration', icon: 'fa-gears' }
     },
 
+    // Fonction pour générer le HTML de la sidebar à partir des routes définies
+    generateSidebarHtml: function() {
+        let sidebarHtml = '';
+        for (const routeId in this.routes) {
+            // S'assurer que la propriété appartient bien à l'objet routes et non au prototype
+            if (Object.hasOwnProperty.call(this.routes, routeId)) {
+                const view = this.routes[routeId];
+                // Génère le HTML pour chaque bouton de la sidebar
+                sidebarHtml += `
+                    <button id="btn-${routeId}" onclick="App.router.go('${routeId}')" class="flex items-center w-full px-5 py-3 text-sm font-medium transition duration-150 ease-in-out text-slate-400">
+                        <i class="fa-solid ${view.icon} mr-3"></i>
+                        ${view.title}
+                    </button>
+                `;
+            }
+        }
+        return sidebarHtml;
+    },
+    
     // Nouvelle fonction utilitaire pour charger les templates HTML via fetch()
     loadTemplate: async function(routeId) {
         try {
