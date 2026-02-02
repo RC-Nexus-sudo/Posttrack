@@ -18,10 +18,10 @@ App.router = {
     loadTemplate: async function(routeId) {
         try {
             // Tente de charger le fichier views/[routeId].html
-            const response = await fetch(`views/${routeId}.html`);
+            const response = await fetch(`js/modules/${routeId}/${routeId}.html`);
             if (!response.ok) {
                 // Si le fichier n'existe pas (ex: sortants.html), lève une erreur
-                throw new Error(`Le template views/${routeId}.html n'existe pas.`);
+                throw new Error(`Le template js/modules/${routeId}.html n'existe pas.`);
             }
             return await response.text();
         } catch (error) {
