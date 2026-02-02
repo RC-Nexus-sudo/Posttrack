@@ -91,11 +91,11 @@ App.modules.entrants = {
                 var html = "";
                 snap.forEach(function(doc) {
                     var mail = doc.data();
-                    var date = mail.timestamp ? new Date(mail.timestamp.seconds * 1000).toLocaleDateString('fr-BE') : '...';
+                    var date = mail.timestamp ? mail.timestamp.toDate().toLocaleDateString('fr-BE') : '...';
                     var color = serviceMap[mail.service] || '#cbd5e1';
                     // Assurez-vous que le champ utilisé ici est 'mode_reception'
                     var modeIcon = this.getModeIcon(mail.mode_reception); 
-                    var updateDate = mail.updatedAt ? new Date(mail.updatedAt.seconds * 1000).toLocaleDateString('fr-BE') : '-';
+                    var updateDate = mail.updatedAt ? mail.updatedAt.toDate().toLocaleDateString('fr-BE') : '-';
                     
                     html += '<tr class="hover:bg-slate-50/80 transition group border-b border-slate-50">';
                     html += '<td class="p-4 text-sm font-bold text-blue-600">' + (mail.indicateur || 'N/A') + '</td>';
@@ -142,16 +142,14 @@ App.modules.entrants = {
 
     // Helper pour visualiser le fichier Base64 (Utilise un BLOB pour l'affichage)
     viewFile: function(base64Data, fileName) {
-        // Crée un objet Blob à partir de la chaîne Base64 pour l'ouvrir dans un nouvel onglet
-        var arr = base64Data.split(','), mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--){
-            u8arr = bstr.charCodeAt(n);
-        }
-        var blob = new Blob([u8arr], {type: mime});
-        var fileURL = URL.createObjectURL(blob);
-        window.open(fileURL, '_blank');
-    },
+    if (!base64Data) {
+        alert("Aucun fichier valide n'est attaché.");
+        return;
+    }
+    
+    // Ouvre le schéma d'URI dans un nouvel onglet
+    window.open(base64Data, '_blank');
+},
 
     // Ouverture du formulaire (Overlay)
     openForm: function(docId) { 
