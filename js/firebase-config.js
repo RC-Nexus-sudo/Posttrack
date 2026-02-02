@@ -54,7 +54,6 @@ function initFirebase() {
 
         window.db = firebase.firestore();
         window.auth = firebase.auth();
-        window.storage = firebase.storage(); // Initialise et rend Storage accessible
 
         // Persistance
         window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
