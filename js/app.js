@@ -1,18 +1,18 @@
 /**
- * Chef d'orchestre de l'application SGC
- */
+* Chef d'orchestre de l'application SGC
+*/
+var App = App || {}; 
+// Assurez-vous que les autres objets (logger, templates, auth...) sont définis avant
+
 if (!App.utils) {
     App.utils = {};
 }
 
 // 1. Ajout de la fonction utilitaire pour l'affichage visuel des erreurs dans App.utils
 App.utils.displayModuleError = function(moduleName, errorMessage) {
-    // Cibler le conteneur spécifique du module dans la page HTML (ex: <div id="entrants-content">)
     var containerId = moduleName + '-content';
     var container = document.getElementById(containerId);
-
     if (container) {
-        // Afficher un message d'erreur visible à l'utilisateur dans le conteneur du module
         container.innerHTML = '<div class="p-10 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">' +
                               '<p class="font-bold">Erreur de chargement du module</p>' +
                               '<p>Le module <strong>' + moduleName + '</strong> n\'a pas pu se charger correctement.</p>' +
@@ -23,45 +23,46 @@ App.utils.displayModuleError = function(moduleName, errorMessage) {
     }
 };
 
-   // Définition de la fonction de conversion de date (au bon endroit dans App.utils)
-    App.utils.convertFirestoreTimestampToDate = function(timestamp) {
-        if (!timestamp) {
-            return null;
-        }
-        if (timestamp instanceof Date) {
-            return timestamp;
-        }
-        // La définition complète de la fonction se trouve sur la page 3 du PDF
-        if (typeof timestamp.toDate === 'function') {
-            return timestamp.toDate();
-        }
-        if (timestamp.seconds !== undefined) {
-            return new Date(timestamp.seconds * 1000);
-        }
-        return null;
-    };
+// 2. Définition de la fonction de conversion de date dans App.utils
+App.utils.convertFirestoreTimestampToDate = function(timestamp) {
+ if (!timestamp) {
+ return null;
+ }
+ if (timestamp instanceof Date) {
+ return timestamp;
+ }
+ if (typeof timestamp.toDate === 'function') {
+ return timestamp.toDate();
+ }
+ if (timestamp.seconds !== undefined) {
+ return new Date(timestamp.seconds * 1000);
+ }
+ return null;
+ };
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    App.logger.log("Système : Initialisation de l'application...", "info");
+    
+    // 5. Gestion de l'horloge
+    initClock();
+    App.logger.log("✅Système prêt et opérationnel.", "info");
 });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            App.logger.log("Système : Initialisation de l'application...", "info");
 
-            // --- SUPPRESSION DE LA BOUCLE setInterval ET DE L'APPEL bootApp() INITIAL ---
-            // Cette logique est remplacée par firebase.auth().onAuthStateChanged ci-dessous.
+// --- LOGIQUE DE DÉMARRAGE BASÉE SUR L'AUTHENTIFICATION ---
 
-            //  Gestion de l'horloge (votre code d'origine)
-            initClock(); 
-            App.logger.log("✅Système prêt et opérationnel.", "info");
-            });
-
-    function bootApp() {
+// Cette fonction exécute toute la logique de démarrage de l'interface
+function bootApp() {
     try {
-        // 1. Initialisation de l'Authentification (si non fait ailleurs)
+        // 1. Initialisation de l'Authentification
         if (App.auth && App.auth.init) App.auth.init();
 
         // 2. Génération de la Sidebar dynamique
         const sidebarNav = document.getElementById('sidebar-nav');
         if (sidebarNav) {
-            sidebarNav.innerHTML = App.router.generateSidebarHtml(); // Assurez-vous d'avoir cette fonction dans votre router
+            // Utilise la fonction generateSidebarHtml() du routeur (doit être définie dans router.js)
+            sidebarNav.innerHTML = App.router.generateSidebarHtml();
             App.logger.log("UI : Sidebar générée.", "debug");
         }
         
@@ -69,7 +70,6 @@ App.utils.displayModuleError = function(moduleName, errorMessage) {
         if (App.monitoring && App.monitoring.init) App.monitoring.init();
         
         // 4. Lancement du module par défaut (ex: dashboard)
-        // Le routeur gère désormais tout le chargement asynchrone et l'initialisation des modules
         App.router.go('dashboard');
 
     } catch (error) {
@@ -87,30 +87,21 @@ firebase.auth().onAuthStateChanged((user) => {
     } else {
         // L'utilisateur n'est pas connecté. Rediriger vers la page de connexion.
         App.logger.log("Aucun utilisateur connecté. Redirection vers login.html", "auth");
-        window.location.href = 'login.html'; 
+        window.location.href = 'login.html';
     }
 });
-            
-            // 5. Gestion de l'horloge
-            initClock();
-            App.logger.log("✅Système prêt et opérationnel.", "info");
 
-        } catch (error) {
-            App.logger.log("CRITICAL ERROR : " + error.message, "error");
-            console.error("Détails :", error);
-        }
-    }
 
-    function initClock() {
-        const timeDisplay = document.getElementById('current-datetime');
-        if (timeDisplay) {
-            const updateClock = () => {
-                timeDisplay.innerText = new Date().toLocaleString('fr-BE', {
-                    weekday: 'short', day: '2-digit', month: 'short',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                });
-            };
-            updateClock();
-            setInterval(updateClock, 1000);
-        }
+function initClock() {
+    const timeDisplay = document.getElementById('current-datetime');
+    if (timeDisplay) {
+        const updateClock = () => {
+            timeDisplay.innerText = new Date().toLocaleString('fr-BE', {
+                weekday: 'short', day: '2-digit', month: 'short',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        };
+        updateClock();
+        setInterval(updateClock, 1000);
     }
+}
