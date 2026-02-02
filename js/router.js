@@ -57,7 +57,9 @@ App.router = {
         return; 
    }
    // --- FIN GESTION SPÉCIFIQUE ---
-   
+
+            document.getElementById('app-view').innerHTML = '';
+            
    // Si le conteneur est valide (le cas pour 'entrants' et 'dashboard'):
    // Si le conteneur est vide, injecter le template initial
    if (!targetContainer.hasChildNodes()) {
