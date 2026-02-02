@@ -157,7 +157,7 @@ App.modules.entrants = {
         return;
     }
     
-    / 1. Extraire le type MIME et les données brutes
+    // 1. Extraire le type MIME et les données brutes
     var parts = base64Data.split(';base64,');
     var mimeType = parts[0].split(':')[1];
     var rawData = window.atob(parts[1]);
