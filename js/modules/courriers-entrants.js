@@ -157,8 +157,24 @@ App.modules.entrants = {
         return;
     }
     
-    // Ouvre le schéma d'URI dans un nouvel onglet
-    window.open(base64Data, '_blank');
+    / 1. Extraire le type MIME et les données brutes
+    var parts = base64Data.split(';base64,');
+    var mimeType = parts[0].split(':')[1];
+    var rawData = window.atob(parts[1]);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+
+    // 2. Créer un Blob à partir des données binaires
+    var blob = new Blob([outputArray], { type: mimeType });
+    
+    // 3. Créer une URL d'objet temporaire
+    var objectUrl = URL.createObjectURL(blob);
+
+    // 4. Ouvrir cette URL d'objet (ce qui est autorisé par les navigateurs)
+    window.open(objectUrl, '_blank');
 },
 
     // Ouverture du formulaire (Overlay)
