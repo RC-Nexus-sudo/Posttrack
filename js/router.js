@@ -40,8 +40,24 @@ App.router = {
    const targetContainerId = `${routeId}-content`;
    const targetContainer = document.getElementById(targetContainerId);
 
-   if (!targetContainer) throw new Error(`Conteneur "${targetContainerId}" introuvable.`);
+   // --- GESTION SPÉCIFIQUE AJOUTÉE POUR LES MODULES INEXISTANTS/EN CRÉATION ---
+   if (!targetContainer) {
+        // Si le conteneur spécifique n'existe pas (ex: sortants-content),
+        // on injecte un message d'information dans le conteneur principal.
+        document.getElementById('app-view').innerHTML = `
+            <div class="p-10 text-center bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
+                <i class="fa-solid fa-hourglass-start fa-2x mb-4"></i>
+                <p class="font-bold">Module en cours de création</p>
+                <p>La page pour ce module sera disponible prochainement.</p>
+            </div>
+        `;
+        App.logger.log(`Info : Le module "${routeId}" est en cours de création.`, "warn");
+        // On arrête l'exécution de la navigation ici
+        return; 
+   }
+   // --- FIN GESTION SPÉCIFIQUE ---
    
+   // Si le conteneur est valide (le cas pour 'entrants' et 'dashboard'):
    // Si le conteneur est vide, injecter le template initial
    if (!targetContainer.hasChildNodes()) {
         targetContainer.innerHTML = App.templates.renderView(routeId, view.title);
