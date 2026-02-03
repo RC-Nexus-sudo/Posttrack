@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="bg-slate-950 h-full">
+<html lang="fr" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,9 +16,10 @@
     <script src="js/logger.js"></script>
     <script src="js/admin-logic.js"></script>
 </head>
-<body class="h-full antialiased">
+<body class="h-full antialiased flex flex-col">
 
-    <div class="min-h-screen p-8">
+    <!-- Contenu Principal de la page -->
+    <div class="flex-1 p-8 overflow-y-auto">
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
             <button onclick="AdminApp.logout()" class="text-sm text-blue-600 hover:text-blue-800">
@@ -26,9 +27,9 @@
             </button>
         </header>
 
-        <!-- Zone des boutons de navigation -->
+        <!-- Zone des boutons de navigation (avec coins arrondis 2xl) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <button onclick="toggleOverlay('agentsOverlay', true); AdminApp.loadUsers()" 
+            <button onclick="toggleOverlay('agentsOverlay', true); AdminApp.loadUsersRegistry()" 
                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
                 <i class="fas fa-users mr-2"></i> Gestion des agents
             </button>
@@ -45,15 +46,18 @@
                 <i class="fas fa-server mr-2"></i> Gestion serveurs (WIP)
             </button>
         </div>
-
-        <!-- Espace principal de l'admin. Logs visibles en bas. -->
-        <div id="admin-logs" class="bg-white p-4 rounded-xl shadow-inner h-48 overflow-y-auto text-xs font-mono text-gray-700 border border-gray-200">
-            <!-- Les logs JS s'afficheront ici -->
-        </div>
     </div>
 
     <!-- ------------------------------------------------------------------ -->
-    <!-- OVERLAYS (MODALES) -->
+    <!-- CONSOLE DE LOGS PERMANENTE EN BAS DE PAGE -->
+    <!-- ------------------------------------------------------------------ -->
+    <footer id="logger-console" class="h-40 bg-black text-green-400 font-mono text-xs p-3 overflow-y-auto border-t-4 border-blue-600">
+        <!-- Les logs JS s'afficheront ici grâce au script logger.js -->
+        <div class="text-slate-500 italic">Console d'événements prête...</div>
+    </footer>
+    
+    <!-- ------------------------------------------------------------------ -->
+    <!-- OVERLAYS (MODALES) - Intégration des IDs et classes du PDF fourni -->
     <!-- ------------------------------------------------------------------ -->
 
     <!-- Overlay Gestion des Agents (Formulaire + Registre) -->
@@ -64,12 +68,11 @@
                 <button onclick="toggleOverlay('agentsOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
             </div>
             
-            <!-- Contenu du formulaire agent (utiliser les IDs du JS fourni) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Formulaire d'ajout/édition -->
                 <div class="p-4 bg-gray-50 rounded-xl">
                     <h3 class="font-bold mb-3">Habiliter un nouvel agent</h3>
-                    <input type="hidden" id="adm-uid"> <!-- Champ caché pour l'édition -->
+                    <input type="hidden" id="adm-uid"> 
                     <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full mb-2 p-2 border rounded-lg">
                     <input type="text" id="adm-nom" placeholder="Nom" class="w-full mb-2 p-2 border rounded-lg">
                     <input type="email" id="adm-email" placeholder="Email (Login)" class="w-full mb-2 p-2 border rounded-lg">
@@ -80,27 +83,25 @@
                         <option value="agent">Agent standard</option>
                         <option value="admin">Administrateur</option>
                     </select>
-
-                    <!-- Section Gestion des Accès Modules -->
-                        <div class="mt-4 pt-4 border-t border-gray-300">
-                            <h4 class="font-semibold mb-2">Accès aux modules spécifiques</h4>
-                            <label class="flex items-center space-x-3">
-                                <input type="checkbox" id="access-entrants" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
-                                <span class="text-gray-700">Courriers Entrants</span>
-                            </label>
-                            <label class="flex items-center space-x-3 mt-1">
-                                <input type="checkbox" id="access-sortants" class="form-checkbox h-4 w-4 text-blue-600 rounded">
-                                <span class="text-gray-700">Courriers Sortants</span>
-                            </label>
-                             <label class="flex items-center space-x-3 mt-1">
-                                <input type="checkbox" id="access-admin" class="form-checkbox h-4 w-4 text-blue-600 rounded">
-                                <span class="text-gray-700">Administration</span>
-                            </label>
-                            <!-- Ajoutez d'autres modules ici (eBox, etc.) -->
-                        </div>
-                    <!-- -------------------------------------------------- -->
                     
-                    <button onclick="AdminApp.saveUser()" class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+                    <!-- Section Gestion des Accès Modules -->
+                    <div class="mt-4 pt-4 border-t border-gray-300">
+                        <h4 class="font-semibold mb-2">Accès aux modules spécifiques</h4>
+                         <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="access-entrants" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                            <span class="text-gray-700">Courriers Entrants</span>
+                        </label>
+                        <label class="flex items-center space-x-3 mt-1">
+                            <input type="checkbox" id="access-sortants" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                            <span class="text-gray-700">Courriers Sortants</span>
+                        </label>
+                         <label class="flex items-center space-x-3 mt-1">
+                            <input type="checkbox" id="access-admin" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                            <span class="text-gray-700">Administration</span>
+                        </label>
+                    </div>
+
+                    <button onclick="AdminApp.saveUser()" class="mt-4 w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
                         Enregistrer l'agent
                     </button>
                 </div>
@@ -109,7 +110,7 @@
                 <div>
                     <h3 class="font-bold mb-3">Registre des accès</h3>
                     <div id="users-registry" class="space-y-2">
-                        <!-- Les cartes agents générées par AdminApp.loadUsers() s'afficheront ici -->
+                        <!-- Les cartes agents générées par AdminApp.loadUsersRegistry() s'afficheront ici -->
                         <div class="text-slate-500 italic">Chargement...</div>
                     </div>
                 </div>
@@ -117,15 +118,14 @@
         </div>
     </div>
 
-    <!-- Overlay Gestion des Services -->
+    <!-- Overlay Gestion des Services (inchangé) -->
     <div id="servicesOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+       <!-- Contenu de l'overlay services ici (cf. PDF 0.1.5, 0.1.6) -->
+       <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
              <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-semibold">Gestion des Services/Départements</h2>
                 <button onclick="toggleOverlay('servicesOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
             </div>
-
-            <!-- Formulaire d'ajout de service -->
             <div class="mb-6">
                 <h3 class="font-bold mb-2">Ajouter un service</h3>
                 <input type="text" id="new-service-name" placeholder="Nom du service (ex: RH)" class="w-full mb-2 p-2 border rounded-lg">
@@ -137,40 +137,39 @@
                     Créer le service
                 </button>
             </div>
-
-            <!-- Liste des services existants -->
             <div>
                 <h3 class="font-bold mb-2">Services existants</h3>
                 <div id="services-list-admin" class="flex flex-wrap gap-3">
-                    <!-- Les badges de services générés par AdminApp.loadServices() s'afficheront ici -->
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Overlay Gestion des Accès (Placeholder) -->
+    <!-- Overlay Gestion des Accès (Placeholder) (inchangé) -->
      <div id="accessOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+       <!-- Contenu de l'overlay accès ici (cf. PDF 0.1.7) -->
+       <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
              <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-semibold">Gestion des Rôles et Permissions (Avancé)</h2>
                 <button onclick="toggleOverlay('accessOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
             </div>
-            <p>Cette section nécessitera l'utilisation des **Custom Claims Firebase** via une fonction Cloud ou un serveur Backend pour définir des permissions granulaires (ex: "Peut valider courrier", "Peut supprimer service").</p>
+            <p>Cette section nécessitera l'utilisation des **Custom Claims Firebase** via une fonction Cloud ou un serveur Backend pour définir des permissions granulaires.</p>
         </div>
     </div>
 
-    <!-- Overlay Gestion Serveurs (Placeholder) -->
+    <!-- Overlay Gestion Serveurs (Placeholder) (inchangé) -->
      <div id="serversOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+       <!-- Contenu de l'overlay serveurs ici (cf. PDF 0.1.7) -->
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
              <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-semibold">Monitoring Serveurs</h2>
                 <button onclick="toggleOverlay('serversOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
             </div>
-            <p>Interface pour monitorer le statut de Firebase Hosting, la charge de la base de données ou les logs d'erreurs backend si vous mettez en place un serveur Node.js.</p>
+            <p>Interface pour monitorer le statut de Firebase Hosting, la charge de la base de données ou les logs d'erreurs backend.</p>
         </div>
     </div>
 
-    <!-- Script JS pour gérer l'ouverture/fermeture des overlays -->
+    <!-- Script JS pour gérer l'ouverture/fermeture des overlays (inchangé) -->
     <script>
         function toggleOverlay(overlayId, show) {
             const overlay = document.getElementById(overlayId);
