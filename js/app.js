@@ -52,9 +52,19 @@ function bootApp() {
         // 2. Génération de la Sidebar dynamique
         const sidebarNav = document.getElementById('sidebar-nav');
         if (sidebarNav) {
-            // Utilise la fonction generateSidebarHtml() du routeur (doit être définie dans router.js)
-            sidebarNav.innerHTML = App.router.generateSidebarHtml();
-            App.logger.log("UI : Sidebar générée.", "debug");
+            // ASSUREZ-VOUS DE PASSER LE BON OBJET : 
+            // App.router.generateSidebarHtml s'attend à recevoir l'objet "modules" en paramètre.
+            
+            // SI generateSidebarHtml n'a PAS de paramètre dans votre version originale du PDF 0.1.1:
+            // sidebarNav.innerHTML = App.router.generateSidebarHtml(); 
+            // ALORS LA LOGIQUE DE FILTRAGE DOIT ÊTRE DANS generateSidebarHtml ET UTILISER App.currentUser
+
+            // Si vous avez utilisé ma version modifiée de router.js qui accepte un paramètre:
+            // sidebarNav.innerHTML = App.router.generateSidebarHtml(App.currentUser.modules); 
+            
+            // Pour l'instant, faisons confiance à la version du router.js que je viens de corriger
+            sidebarNav.innerHTML = App.router.generateSidebarHtml(App.currentUser.modules);
+            App.logger.log("UI : Sidebar générée avec permissions.", "debug");
         }
         
         // 3. Initialisation de la Monitoring Bar
