@@ -8,7 +8,11 @@ App.logger = {
         const colors = {
             'info': 'text-emerald-400',
             'error': 'text-red-400',
-            'debug': 'text-blue-400'
+            'debug': 'text-blue-400',
+            'success': 'text-green-400',
+            'warn': 'text-yellow-400',
+            'auth': 'text-purple-400'
+        
         };
         const color = colors[type] || 'text-white';
         container.innerHTML += `<div class="${color} mb-1">[${time}] [${type.toUpperCase()}] : ${msg}</div>`;
