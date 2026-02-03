@@ -15,19 +15,42 @@ App.router = {
     },
 
     // Fonction pour générer le HTML de la sidebar à partir des routes définies
-    generateSidebarHtml: function() {
+    /**
+     * Génère le HTML de la sidebar à partir des routes définies et des permissions de l'utilisateur.
+     * @param {object} userModules L'objet App.currentUser.modules contenant les permissions.
+     */
+    generateSidebarHtml: function(userModules) {
         let sidebarHtml = '';
+        
         for (const routeId in this.routes) {
-            // S'assurer que la propriété appartient bien à l'objet routes et non au prototype
             if (Object.hasOwnProperty.call(this.routes, routeId)) {
                 const view = this.routes[routeId];
-                // Génère le HTML pour chaque bouton de la sidebar
-                sidebarHtml += `
-                    <button id="btn-${routeId}" onclick="App.router.go('${routeId}')" class="flex items-center w-full px-5 py-3 text-sm font-medium transition duration-150 ease-in-out text-slate-400">
+                
+                // --- Logique de vérification d'accès ---
+                let isAllowed = false;
+
+                if (routeId === 'dashboard') {
+                    isAllowed = true; // Le dashboard est toujours accessible
+                } else if (routeId === 'parametres') {
+                    // Accès admin (si le rôle ou le module admin est autorisé)
+                    isAllowed = userModules.admin || (App.currentUser && App.currentUser.role === 'admin');
+                } else {
+                    // Vérifie si le module spécifique est autorisé dans l'objet modules
+                    // Les clés doivent correspondre (ex: 'entrants' <-> modules.entrants)
+                    isAllowed = userModules[routeId] || false; 
+                }
+
+                // Si autorisé, génère le HTML pour le bouton de la sidebar
+                if (isAllowed) {
+                    sidebarHtml += `
+                        <button id="btn-${routeId}" onclick="App.router.go('${routeId}')" class="flex items-center 
+                        w-full px-5 py-3 text-sm font-medium transition duration-150 ease-in-out text-slate-400">
                         <i class="fa-solid ${view.icon} mr-3"></i>
                         ${view.title}
-                    </button>
-                `;
+                        </button>
+                    `;
+                }
+                // --------------------------------------------------
             }
         }
         return sidebarHtml;
@@ -51,6 +74,19 @@ App.router = {
 
     // Fonction principale pour changer de vue (mise à jour pour être asynchrone)
     go: async function(routeId) { // Ajout de 'async'
+        
+        // --- Vérification d'accès immédiate avant de naviguer ---
+        const userModules = App.currentUser ? App.currentUser.modules : {};
+        let isAllowed = (routeId === 'dashboard') || userModules[routeId] || (routeId === 'parametres' && (userModules.admin || App.currentUser.role === 'admin'));
+        
+        if (!isAllowed) {
+            App.logger.log(`Accès refusé au module ${routeId}.`, "error");
+            // Rediriger vers le dashboard ou afficher un message d'erreur d'accès
+            App.router.go('dashboard'); 
+            return; 
+        }
+        // -----------------------------------------------------------------
+        
         try {
             // --- CAS SPÉCIFIQUE : ADMINISTRATION ---
             if (routeId === 'parametres') {
