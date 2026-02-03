@@ -75,13 +75,24 @@ App.router = {
     // Fonction principale pour changer de vue (mise à jour pour être asynchrone)
     go: async function(routeId) { // Ajout de 'async'
         
-        // --- Vérification d'accès immédiate avant de naviguer ---
-        const userModules = App.currentUser ? App.currentUser.modules : {};
-        let isAllowed = (routeId === 'dashboard') || userModules[routeId] || (routeId === 'parametres' && (userModules.admin || App.currentUser.role === 'admin'));
+        // Utilisation du chaînage optionnel et fallback solide
+        const userModules = App.currentUser?.modules || {}; // S'assure que userModules est un objet valide, même si App.currentUser est null/undefined
+        const userRole = App.currentUser?.role || 'agent'; // Fallback au rôle 'agent' par défaut
+
+        let isAllowed = false;
+        
+        if (routeId === 'dashboard') {
+            isAllowed = true;
+        } else if (routeId === 'parametres') {
+            // Vérifie l'accès admin
+            isAllowed = userModules.admin || userRole === 'admin';
+        } else {
+            // Vérifie l'accès aux autres modules (entrants, sortants...)
+            isAllowed = userModules[routeId] || false;
+        }
         
         if (!isAllowed) {
             App.logger.log(`Accès refusé au module ${routeId}.`, "error");
-            // Rediriger vers le dashboard ou afficher un message d'erreur d'accès
             App.router.go('dashboard'); 
             return; 
         }
