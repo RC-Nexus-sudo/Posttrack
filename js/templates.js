@@ -5,20 +5,49 @@
  */
 var App = App || {}; 
 App.templates = {
- // 1. GÉNÉRATEUR DE LA SIDEBAR (inchangé)
- sidebar: function() {
-  if (!App.router || !App.router.routes) return "";
+ // 1. GÉNÉRATEUR DE LA SIDEBAR
+  sidebar: function() {
+   if (!App.router || !App.router.routes || !App.currentUser || !App.currentUser.modules) {
+            // Log un message si les données nécessaires ne sont pas prêtes
+            App.logger.log("Erreur : Impossible de générer la sidebar, données manquantes.", "error");
+            return "";
+        }
   return Object.keys(App.router.routes).map(id => {
-  const route = App.router.routes[id];
-  return `
-  <button onclick="App.router.go('${id}')" id="btn-${id}" 
-  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:bg-slate-800 transition-all group">
-  <i class="fa-solid ${route.icon} w-5"></i>
-  <span class="font-medium">${route.title}</span>
-  </button>`;
-  }).join('');
- },
- // 2. GÉNÉRATEUR DES VUES (MAIN CONTENT) (inchangé)
+            const route = App.router.routes[id];
+            
+            // --- NOUVEAU : Logique de vérification d'accès ---
+            let isAllowed = false;
+            
+            // Les routes 'dashboard' et 'parametres' nécessitent un traitement spécifique
+            if (id === 'dashboard') {
+                isAllowed = true; // Le dashboard est toujours accessible
+            } else if (id === 'parametres') {
+                 // Accès admin via l'ancienne route 'parametres' (comme dans votre PDF 0.1.2)
+                isAllowed = App.currentUser.modules.admin || App.currentUser.role === 'admin';
+            } else {
+                // Vérifie si le module spécifique est autorisé dans l'objet modules
+                // Les clés doivent correspondre (ex: 'entrants' <-> modules.courriersEntrants)
+                // On suppose ici que vos IDs de route correspondent aux clés de permissions exactes si ce n'est pas dashboard/parametres
+                // Si vos clés de modules sont différentes ('courriersEntrants'), il faudra adapter la condition.
+                isAllowed = App.currentUser.modules[id] || false; 
+            }
+
+            // Si l'utilisateur n'a pas la permission, on ne génère pas le bouton
+            if (!isAllowed) return ''; 
+            // --------------------------------------------------
+
+            return `
+                <button onclick="App.router.go('${id}')" id="btn-${id}" 
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:bg-slate-800 
+                transition-all group">
+                <i class="fa-solid ${route.icon} w-5"></i>
+                <span class="font-medium">${route.title}</span>
+                </button>
+            `;
+        }).join('');
+    },
+   
+ // 2. GÉNÉRATEUR DES VUES (MAIN CONTENT) 
  renderView: function(id, title) {
   let headerAction = "";
   let body = "";
