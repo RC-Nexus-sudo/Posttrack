@@ -20,27 +20,28 @@ App.router = {
      * @param {object} userModules L'objet App.currentUser.modules contenant les permissions.
      */
     generateSidebarHtml: function(userModules) {
+        // S'assurer que userModules est au moins un objet vide si undefined
+        const modules = userModules || {}; 
         let sidebarHtml = '';
         
         for (const routeId in this.routes) {
             if (Object.hasOwnProperty.call(this.routes, routeId)) {
                 const view = this.routes[routeId];
                 
-                // --- Logique de vérification d'accès ---
                 let isAllowed = false;
 
                 if (routeId === 'dashboard') {
-                    isAllowed = true; // Le dashboard est toujours accessible
+                    isAllowed = true; 
                 } else if (routeId === 'parametres') {
-                    // Accès admin (si le rôle ou le module admin est autorisé)
-                    isAllowed = userModules.admin || (App.currentUser && App.currentUser.role === 'admin');
+                    // Accès admin via la clé 'admin' dans l'objet modules
+                    isAllowed = modules.admin || (App.currentUser && App.currentUser.role === 'admin');
                 } else {
-                    // Vérifie si le module spécifique est autorisé dans l'objet modules
-                    // Les clés doivent correspondre (ex: 'entrants' <-> modules.entrants)
-                    isAllowed = userModules[routeId] || false; 
+                    // S'assurer d'accéder à la propriété existante dans l'objet 'modules'
+                    // Si vos clés sont 'courriersEntrants' etc., utilisez celle-ci.
+                    // En supposant que vos clés sont simplement 'entrants', 'sortants' etc.
+                    isAllowed = modules[routeId] || false; 
                 }
 
-                // Si autorisé, génère le HTML pour le bouton de la sidebar
                 if (isAllowed) {
                     sidebarHtml += `
                         <button id="btn-${routeId}" onclick="App.router.go('${routeId}')" class="flex items-center 
@@ -50,7 +51,6 @@ App.router = {
                         </button>
                     `;
                 }
-                // --------------------------------------------------
             }
         }
         return sidebarHtml;
