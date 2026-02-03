@@ -3,120 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGC - Administration des Accès</title>
+    <title>SGC - Administration et gestion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Scripts -->
+    <script src="lib/firebase-app-compat.js"></script>
+    <script src="lib/firebase-auth-compat.js"></script>
+    <script src="lib/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/logger.js"></script>
+    <script src="js/admin-logic.js"></script>
 </head>
-<body class="h-full flex flex-col p-6 md:p-8 font-sans overflow-hidden"> <!-- overflow-hidden ici est vital -->
+<body class="h-full antialiased">
 
-    <!-- Header Admin -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-slate-800 flex-shrink-0">
-        <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter border border-blue-500/20">
-                    Système de sécurité
-                </span>
+    <div class="min-h-screen p-8">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
+            <button onclick="AdminApp.logout()" class="text-sm text-blue-600 hover:text-blue-800">
+                Déconnexion
+            </button>
+        </header>
+
+        <!-- Zone des boutons de navigation -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="toggleOverlay('agentsOverlay', true); AdminApp.loadUsers()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+                <i class="fas fa-users mr-2"></i> Gestion des agents
+            </button>
+            <button onclick="toggleOverlay('servicesOverlay', true); AdminApp.loadServices()" 
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+                <i class="fas fa-building mr-2"></i> Gestion des services
+            </button>
+            <button onclick="toggleOverlay('accessOverlay', true)" 
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+                <i class="fas fa-shield-alt mr-2"></i> Gestion des accès
+            </button>
+            <button onclick="toggleOverlay('serversOverlay', true)" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+                <i class="fas fa-server mr-2"></i> Gestion serveurs (WIP)
+            </button>
+        </div>
+
+        <!-- Espace principal de l'admin. Logs visibles en bas. -->
+        <div id="admin-logs" class="bg-white p-4 rounded-xl shadow-inner h-48 overflow-y-auto text-xs font-mono text-gray-700 border border-gray-200">
+            <!-- Les logs JS s'afficheront ici -->
+        </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- OVERLAYS (MODALES) -->
+    <!-- ------------------------------------------------------------------ -->
+
+    <!-- Overlay Gestion des Agents (Formulaire + Registre) -->
+    <div id="agentsOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Agents et Habilitations</h2>
+                <button onclick="toggleOverlay('agentsOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
             </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">Registre des Habilitations</h1>
-            <p class="text-slate-400 text-sm font-medium opacity-80 mt-1 italic">
-                Contrôle d'accès et gestion des privilèges des agents
-            </p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            <a href="index.html" class="bg-slate-800 text-slate-300 px-6 py-2 rounded-xl hover:bg-slate-700 transition flex items-center gap-2 text-sm font-bold">
-                <i class="fa-solid fa-arrow-left"></i> Retour à l'Application
-            </a>
-        </div>
-        <button onclick="AdminApp.logout()" class="flex items-center gap-2 bg-red-500/10 text-red-500 px-4 py-2 rounded-xl border border-red-500/20 hover:bg-red-500 hover:text-white transition font-bold text-xs">
-            <i class="fa-solid fa-power-off"></i> Déconnexion
-        </button>
-    </header>
-
-    <!-- Zone principale : Anti-chevauchement -->
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0 overflow-hidden">
-        
-        <!-- COLONNE GAUCHE : Formulaires (Scrollable si besoin) -->
-        <div class="flex flex-col gap-6 overflow-y-auto pr-2">
             
-            <!-- 1. Formulaire d'Habilitation -->
-            <section class="bg-white rounded-3xl p-6 shadow-2xl flex-shrink-0">
-                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-blue-600"></i> Enregistrer un Agent
-                </h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Référence Système (Auto)</label>
-                        <input type="text" id="adm-uid" placeholder="Généré automatiquement" readonly 
-                           class="w-full p-3 bg-slate-100 border rounded-xl text-xs text-slate-500 cursor-not-allowed">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
-                        <input type="text" id="adm-nom" placeholder="Nom" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
-                    </div>
-                    <input type="email" id="adm-email" placeholder="Email institutionnel" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
-                    
-                    <!-- SELECT DYNAMIQUE POUR LES SERVICES -->
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Département Affecté</label>
-                        <select id="adm-service" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
-                            <option value="">-- Chargement des services... --</option>
-                        </select>
-                    </div>
-
-                    <select id="adm-role" class="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="agent">Agent Standard</option>
+            <!-- Contenu du formulaire agent (utiliser les IDs du JS fourni) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Formulaire d'ajout/édition -->
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <h3 class="font-bold mb-3">Habiliter un nouvel agent</h3>
+                    <input type="hidden" id="adm-uid"> <!-- Champ caché pour l'édition -->
+                    <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full mb-2 p-2 border rounded-lg">
+                    <input type="text" id="adm-nom" placeholder="Nom" class="w-full mb-2 p-2 border rounded-lg">
+                    <input type="email" id="adm-email" placeholder="Email (Login)" class="w-full mb-2 p-2 border rounded-lg">
+                    <select id="adm-service" class="w-full mb-2 p-2 border rounded-lg">
+                        <!-- Options générées par AdminApp.loadServices() -->
+                    </select>
+                    <select id="adm-role" class="w-full mb-4 p-2 border rounded-lg">
+                        <option value="agent">Agent standard</option>
                         <option value="admin">Administrateur</option>
                     </select>
-                    <button onclick="AdminApp.saveUser()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 mt-2">
-                        Autoriser l'accès
+                    <button onclick="AdminApp.saveUser()" class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
+                        Enregistrer l'agent
                     </button>
                 </div>
-            </section>
 
-            <!-- 2. Gestion des Services (Nouveau Bloc intégré) -->
-            <section class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex-shrink-0">
-                <h3 class="text-white font-bold mb-4 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-tags text-amber-500"></i> Configurer les Services
-                </h3>
-                <div class="flex flex-col gap-3">
-                    <input type="text" id="new-service-name" placeholder="Nom (ex: Finances)" class="bg-slate-800 border-none rounded-xl p-3 text-white text-sm outline-none focus:ring-1 focus:ring-amber-500">
-                    <div class="flex gap-2">
-                        <input type="color" id="new-service-color" class="h-10 w-14 bg-slate-800 border-none rounded-lg p-1 cursor-pointer" value="#3b82f6">
-                        <button onclick="AdminApp.addService()" class="flex-1 bg-amber-600 text-white rounded-xl font-bold text-xs hover:bg-amber-700 transition uppercase tracking-wider">
-                            Ajouter le service
-                        </button>
-                    </div>
-                    <div id="services-list-admin" class="flex flex-wrap gap-2 mt-4">
-                        <!-- Liste des services avec badges de couleur -->
+                <!-- Registre des agents -->
+                <div>
+                    <h3 class="font-bold mb-3">Registre des accès</h3>
+                    <div id="users-registry" class="space-y-2">
+                        <!-- Les cartes agents générées par AdminApp.loadUsers() s'afficheront ici -->
+                        <div class="text-slate-500 italic">Chargement...</div>
                     </div>
                 </div>
-            </section>
-        </div>
-
-        <!-- COLONNE DROITE : Registre (Scrollable séparément) -->
-        <section class="lg:col-span-2 flex flex-col min-h-0 bg-slate-900/50 rounded-3xl p-6 border border-slate-800/50">
-            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-list-check text-emerald-500"></i> Registre des Habilitations
-            </h3>
-            <div id="users-registry" class="space-y-3 overflow-y-auto pr-2 scrollbar-thin">
-                <!-- Les cartes agents s'injectent ici -->
-                <div class="text-slate-500 animate-pulse text-sm italic">Initialisation du flux Firestore...</div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
-    <!-- Console de Debug (Vraiment en bas) -->
-    <footer id="admin-logs" class="mt-6 flex-shrink-0 bg-black rounded-2xl p-4 h-28 overflow-y-auto text-[10px] font-mono text-emerald-500 border border-slate-800">
-        <div>[SYSTEM] Console d'administration prête.</div>
-    </footer>
+    <!-- Overlay Gestion des Services -->
+    <div id="servicesOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Services/Départements</h2>
+                <button onclick="toggleOverlay('servicesOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
 
-    <!-- Firebase Compat -->
-    <script src="lib/firebase-app-compat.js"></script>
-    <script src="lib/firebase-firestore-compat.js"></script>
-    <script src="lib/firebase-auth-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/admin-logic.js"></script>
+            <!-- Formulaire d'ajout de service -->
+            <div class="mb-6">
+                <h3 class="font-bold mb-2">Ajouter un service</h3>
+                <input type="text" id="new-service-name" placeholder="Nom du service (ex: RH)" class="w-full mb-2 p-2 border rounded-lg">
+                <div class="flex items-center gap-4">
+                    <label for="new-service-color">Couleur associée:</label>
+                    <input type="color" id="new-service-color" value="#3b82f6" class="p-1 h-10 w-14 block cursor-pointer rounded-lg border border-gray-300 bg-white">
+                </div>
+                <button onclick="AdminApp.addService()" class="mt-4 w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600">
+                    Créer le service
+                </button>
+            </div>
+
+            <!-- Liste des services existants -->
+            <div>
+                <h3 class="font-bold mb-2">Services existants</h3>
+                <div id="services-list-admin" class="flex flex-wrap gap-3">
+                    <!-- Les badges de services générés par AdminApp.loadServices() s'afficheront ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay Gestion des Accès (Placeholder) -->
+     <div id="accessOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Rôles et Permissions (Avancé)</h2>
+                <button onclick="toggleOverlay('accessOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <p>Cette section nécessitera l'utilisation des **Custom Claims Firebase** via une fonction Cloud ou un serveur Backend pour définir des permissions granulaires (ex: "Peut valider courrier", "Peut supprimer service").</p>
+        </div>
+    </div>
+
+    <!-- Overlay Gestion Serveurs (Placeholder) -->
+     <div id="serversOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Monitoring Serveurs</h2>
+                <button onclick="toggleOverlay('serversOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <p>Interface pour monitorer le statut de Firebase Hosting, la charge de la base de données ou les logs d'erreurs backend si vous mettez en place un serveur Node.js.</p>
+        </div>
+    </div>
+
+    <!-- Script JS pour gérer l'ouverture/fermeture des overlays -->
+    <script>
+        function toggleOverlay(overlayId, show) {
+            const overlay = document.getElementById(overlayId);
+            if (overlay) {
+                if (show) {
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                } else {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
 
