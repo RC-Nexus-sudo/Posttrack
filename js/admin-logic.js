@@ -72,7 +72,7 @@ const AdminApp = {
             email: document.getElementById('adm-email').value.trim().toLowerCase(),
             service: document.getElementById('adm-service').value.trim(),
             role: document.getElementById('adm-role').value.toLowerCase().trim(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
 
             // Objet de permissions ---
             modules: {
