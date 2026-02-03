@@ -41,15 +41,6 @@ App.utils.convertFirestoreTimestampToDate = function(timestamp) {
  };
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    App.logger.log("Système : Initialisation de l'application...", "info");
-    
-    // 5. Gestion de l'horloge
-    initClock();
-    App.logger.log("✅Système prêt et opérationnel.", "info");
-});
-
-
 // --- LOGIQUE DE DÉMARRAGE BASÉE SUR L'AUTHENTIFICATION ---
 
 // Cette fonction exécute toute la logique de démarrage de l'interface
@@ -78,20 +69,6 @@ function bootApp() {
     }
 }
 
-// Observateur d'état d'authentification Firebase
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        // L'utilisateur est connecté et authentifié. On peut démarrer l'app.
-        App.logger.log(`Utilisateur connecté: ${user.email}`, "auth");
-        bootApp();
-    } else {
-        // L'utilisateur n'est pas connecté. Rediriger vers la page de connexion.
-        App.logger.log("Aucun utilisateur connecté. Redirection vers login.html", "auth");
-        window.location.href = 'login.html';
-    }
-});
-
-
 function initClock() {
     const timeDisplay = document.getElementById('current-datetime');
     if (timeDisplay) {
@@ -105,3 +82,49 @@ function initClock() {
         setInterval(updateClock, 1000);
     }
 }
+
+// --- LOGIQUE DE DÉMARRAGE BASÉE SUR L'AUTHENTIFICATION ET FIRESTORE ---
+
+// Observateur d'état d'authentification Firebase (cœur de la logique)
+firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+        // L'utilisateur est connecté et authentifié.
+        App.logger.log(`Utilisateur connecté: ${user.email}`, "auth");
+
+        try {
+            // Étape CRUCIALE: Récupérer les données Firestore avant de démarrer l'UI
+            const docRef = firebase.firestore().collection("users").doc(user.uid);
+            const docSnap = await docRef.get();
+
+            if (docSnap.exists) {
+                App.currentUser = docSnap.data(); // Stocke TOUT l'objet utilisateur avec ses 'modules'
+                App.logger.log("Données utilisateur Firestore récupérées.", "auth");
+                bootApp(); // Démarrer l'application MAINTENANT que nous avons les permissions
+            } else {
+                // Pas de document Firestore -> problème de compte
+                App.logger.log("Document utilisateur Firestore manquant. Déconnexion.", "error");
+                await firebase.auth().signOut();
+            }
+        } catch (error) {
+            App.logger.log(`Erreur fatale lors de la récupération des données utilisateur: ${error.message}`, "error");
+            await firebase.auth().signOut();
+        }
+
+    } else {
+        // L'utilisateur n'est pas connecté. Rediriger vers la page de connexion.
+        App.logger.log("Aucun utilisateur connecté. Redirection vers login.html", "auth");
+        window.location.href = 'login.html';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    App.logger.log("Système : Initialisation de l'application...", "info");
+    
+    // 5. Gestion de l'horloge
+    initClock();
+    App.logger.log("✅Système prêt et opérationnel.", "info");
+});
+
+
+
+
