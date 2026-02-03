@@ -59,6 +59,13 @@ const AdminApp = {
     // 4. ENREGISTREMENT / MISE À JOUR AGENT
     saveUser: function() {
         let uid = document.getElementById('adm-uid').value.trim();
+
+        // Récupération des permissions depuis les checkboxes ---
+        const accessEntrants = document.getElementById('access-entrants').checked;
+        const accessSortants = document.getElementById('access-sortants').checked;
+        const accessAdmin = document.getElementById('access-admin').checked; // Géré aussi par le rôle 'admin'
+        // ------------------------------------------------------------------
+        
         const data = {
             prenom: document.getElementById('adm-prenom').value.trim(),
             nom: document.getElementById('adm-nom').value.trim(),
@@ -66,6 +73,16 @@ const AdminApp = {
             service: document.getElementById('adm-service').value.trim(),
             role: document.getElementById('adm-role').value.toLowerCase().trim(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+
+            // Objet de permissions ---
+            modules: {
+                dashboard: true, // Toujours actif
+                courriersEntrants: accessEntrants,
+                courriersSortants: accessSortants,
+                admin: accessAdmin
+                // Ajoutez ici eBox, Emails Boite Info, etc.
+            }
+            // ------------------------------------
         };
 
         if (!data.nom || !data.email || !data.prenom) {
