@@ -80,6 +80,26 @@
                         <option value="agent">Agent standard</option>
                         <option value="admin">Administrateur</option>
                     </select>
+
+                    <!-- Section Gestion des Accès Modules -->
+                        <div class="mt-4 pt-4 border-t border-gray-300">
+                            <h4 class="font-semibold mb-2">Accès aux modules spécifiques</h4>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="access-entrants" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                                <span class="text-gray-700">Courriers Entrants</span>
+                            </label>
+                            <label class="flex items-center space-x-3 mt-1">
+                                <input type="checkbox" id="access-sortants" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                                <span class="text-gray-700">Courriers Sortants</span>
+                            </label>
+                             <label class="flex items-center space-x-3 mt-1">
+                                <input type="checkbox" id="access-admin" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                                <span class="text-gray-700">Administration</span>
+                            </label>
+                            <!-- Ajoutez d'autres modules ici (eBox, etc.) -->
+                        </div>
+                    <!-- -------------------------------------------------- -->
+                    
                     <button onclick="AdminApp.saveUser()" class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">
                         Enregistrer l'agent
                     </button>
