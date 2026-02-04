@@ -14,17 +14,32 @@ App.modules.parametres = {
     init: function() {
         // Nous utilisons le logger global de App.js au lieu d'un logger interne
         App.logger.log("Initialisation du registre des accès (AdminLogic.init())...", "info");
-
+        
         // Assurez-vous que les variables globales db et auth de firebase-config.js sont accessibles
         const checkFirebase = setInterval(() => {
             if (window.db && window.auth) {
                 clearInterval(checkFirebase);               
                 this.loadUsersRegistry(); 
                 this.loadServices(); // Active la liste des services et le menu déroulant
+                this.bindMainFormButtons();
             }
         }, 500);
     },
 
+    bindMainFormButtons: function() {
+        // Ciblez les boutons qui ne sont PAS dans la liste dynamique (ex: bouton "Enregistrer" principal, bouton "Ajouter Service")
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'btn-save-user') { // Assurez-vous que cet ID est dans votre HTML
+                e.preventDefault();
+                this.saveUser();
+            }
+            if (e.target.id === 'btn-add-service') { // Assurez-vous que cet ID est dans votre HTML
+                e.preventDefault();
+                this.addService();
+            }
+        });
+    },
+    
     // 2. ENREGISTREMENT / MISE À JOUR AGENT
     saveUser: function() {
         let uid = document.getElementById('adm-uid').value.trim();
