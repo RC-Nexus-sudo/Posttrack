@@ -51,7 +51,7 @@ if (App.modules.parametres) {
     App.logger.log("Module Administration (parametres) mappé et prêt.", "info");
 } else {
     // Ce log ne devrait plus apparaître si le script est bien chargé dans index.html
-    App.logger.log("Avertissement: Le script admin-logic.js n'a pas pu se charger correctement.", "warn");
+    App.logger.log("[INFO] : Attente des dépendances Firebase...", "info");
 }
 
 // Mappage des autres modules (courriers entrants, etc.)
