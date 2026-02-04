@@ -1,7 +1,7 @@
 /**
  * Admin Logic - Gestion unifiée des habilitations et des services
  */
-const AdminApp = {
+var AdminLogic = {
     // 1. INITIALISATION SÉCURISÉE
     init: function() {
         // Nous utilisons le logger global de App.js au lieu d'un logger interne
