@@ -23,6 +23,23 @@ App.utils.displayModuleError = function(moduleName, errorMessage) {
     }
 };
 
+    //  Définition de la fonction de conversion de date dans App.utils
+        App.utils.convertFirestoreTimestampToDate = function(timestamp) {
+         if (!timestamp) {
+             return null;
+         }
+                 if (timestamp instanceof Date) {
+                     return timestamp;
+             }
+                 if (typeof timestamp.toDate === 'function') {
+                     return timestamp.toDate();
+             }
+                 if (timestamp.seconds !== undefined) {
+                     return new Date(timestamp.seconds * 1000);
+         }
+                     return null;
+ };
+
 // Définition globale de la fonction toggleOverlay
 window.toggleOverlay = function(id) {
     const overlay = document.getElementById(id);
