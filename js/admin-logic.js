@@ -1,7 +1,15 @@
 /**
- * Admin Logic - Gestion unifiée des habilitations et des services
- */
-var AdminLogic = {
+* Admin Logic - Gestion unifiée des habilitations et des services
+* Ce fichier est chargé une seule fois au démarrage de index.html
+* Il s'attache directement à l'objet global App.modules.parametres
+*/
+
+// S'assurer que App et App.modules existent
+var App = App || {};
+App.modules = App.modules || {};
+
+// Définition directe de la logique d'administration
+App.modules.parametres = {
     // 1. INITIALISATION SÉCURISÉE
     init: function() {
         // Nous utilisons le logger global de App.js au lieu d'un logger interne
