@@ -5,7 +5,7 @@
 */
 
 // S'assurer que App et App.modules existent
-var App = App || {};
+var AdminApp = App.modules.parametres; 
 App.modules = App.modules || {};
 
 // Définition directe de la logique d'administration
