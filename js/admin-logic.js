@@ -185,6 +185,7 @@ App.modules.parametres = {
 
     // 7. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
     loadServices: function() {
+        App.logger.log("Début du chargement des services...", "info");
         const listAdmin = document.getElementById('services-list-admin');
         const selectAgent = document.getElementById('adm-service');
 
@@ -207,6 +208,7 @@ App.modules.parametres = {
                 
                 // Injection automatique dans le menu déroulant des agents
                 selectAgent.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+                App.logger.log("Fin du chargement des services (vérifier Firebase pour les données)", "info");
             });
         }, err => App.logger.log("Erreur flux services: " + err.message));
     },
