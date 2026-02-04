@@ -21,24 +21,62 @@ App.modules.parametres = {
                 clearInterval(checkFirebase);               
                 this.loadUsers(); 
                 this.loadServices(); // Active la liste des services et le menu déroulant
-                this.bindMainFormButtons();
+                this.bindEventListeners();
             }
         }, 500);
     },
 
-    bindMainFormButtons: function() {
-        // Ciblez les boutons qui ne sont PAS dans la liste dynamique (ex: bouton "Enregistrer" principal, bouton "Ajouter Service")
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'btn-save-user') { // Assurez-vous que cet ID est dans votre HTML
-                e.preventDefault();
-                this.saveUser();
-            }
-            if (e.target.id === 'btn-add-service') { // Assurez-vous que cet ID est dans votre HTML
-                e.preventDefault();
-                this.addService();
+    bindEventListeners: function() {
+        // Notez que "this" fait référence à App.modules.parametres dans ce contexte
+
+    // 1. Écouteur global pour les formulaires principaux (restent inchangés)
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'btn-save-user') { 
+            e.preventDefault();
+            this.saveUser();
+        }
+        if (e.target.id === 'btn-add-service') { 
+            e.preventDefault();
+            this.addService();
+        }
+    });
+
+        // 2. Délégation d'événements pour le registre des agents dynamiques
+    const usersRegistry = document.getElementById('users-registry');
+    if (usersRegistry) {
+        usersRegistry.addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return; // S'assurer que le clic est bien sur un bouton d'action
+
+            const action = button.getAttribute('data-action');
+            const id = button.getAttribute('data-id');
+
+            if (action === 'editUser') {
+                this.editUser(id);
+            } else if (action === 'deleteUser') {
+                this.deleteUser(id);
             }
         });
-    },
+    }
+
+    // 3. Délégation d'événements pour la liste des services dynamiques
+    const servicesList = document.getElementById('services-list-admin');
+    if (servicesList) {
+        servicesList.addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+
+            const action = button.getAttribute('data-action');
+            const id = button.getAttribute('data-id');
+
+            if (action === 'deleteService') {
+                this.deleteService(id);
+            }
+        });
+    }
+
+    App.logger.log("Gestionnaires d'événements dynamiques liés.");
+},
     
     // 2. ENREGISTREMENT / MISE À JOUR AGENT
     saveUser: function() {
@@ -121,8 +159,8 @@ App.modules.parametres = {
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[9px] px-2 py-1 rounded bg-slate-950 text-slate-400 border border-slate-800 mr-2 uppercase">${u.role || 'agent'}</span>
-                        <button onclick="AdminApp.editUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
-                        <button onclick="AdminApp.deleteUser('${doc.id}')" class="w-8 h-8 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        <button data-action="editUser" data-id="${doc.id}" class="w-8 h-8 rounded-lg bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                        <button data-action="deleteUser" data-id="${doc.id}" class="w-8 h-8 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-600 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     </div>
                 </div>`;
         });
@@ -203,7 +241,7 @@ App.modules.parametres = {
                          style="background: ${s.color}22; border-color: ${s.color}">
                         <span class="w-2 h-2 rounded-full" style="background: ${s.color}"></span>
                         ${s.name}
-                        <button onclick="AdminApp.deleteService('${doc.id}')" class="ml-1 text-slate-500 hover:text-white">×</button>
+                        <button data-action="deleteService" data-id="${doc.id}" class="ml-1 text-slate-500 hover:text-white">×</button>
                     </div>`;
                 
                 // Injection automatique dans le menu déroulant des agents
