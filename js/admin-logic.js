@@ -264,7 +264,7 @@ App.modules.parametres = {
     document.getElementById('adm-prenom').value = '';
     document.getElementById('adm-nom').value = '';
     document.getElementById('adm-email').value = '';
-    document.getElementById('adm-service').value = ''; // Peut-être remettre à '-- Choisir un service --'
+    document.getElementById('adm-service').value = '-- Choisir un service --'; // Peut-être remettre à '-- Choisir un service --'
     document.getElementById('adm-role').value = 'agent';
     // Réinitialiser les checkboxes si nécessaire
     // ...
