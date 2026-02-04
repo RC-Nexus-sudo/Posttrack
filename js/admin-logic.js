@@ -78,11 +78,11 @@ App.modules.parametres = {
 
         window.db.collection("users").doc(uid).set(data, { merge: true })
             .then(() => {
-                this.log("✅ Habilitation enregistrée : " + uid);
+                App.logger.log("✅ Habilitation enregistrée : " + uid);
                 this.clearForm();
             })
             .catch(err => {
-                this.log("❌ Erreur : " + err.message);
+                App.logger.log("❌ Erreur : " + err.message);
                 alert("Erreur Firestore : " + err.message);
             });
     },
@@ -127,9 +127,9 @@ App.modules.parametres = {
                 </div>`;
         });
         container.innerHTML = html;
-        this.log("Registre mis à jour.");
+        App.logger.log("Registre mis à jour.");
     }, err => {
-        this.log("ERREUR de flux : " + err.message);
+        App.logger.log("ERREUR de flux : " + err.message);
         container.innerHTML = `<div class="text-red-500 p-4 text-xs bg-red-500/10 rounded-xl">Erreur de lecture Firestore : ${err.message}</div>`;
     });
 },
@@ -155,7 +155,7 @@ App.modules.parametres = {
     // 5. SUPPRESSION AGENT
     deleteUser: function(id) {
         if (confirm("🚨 Supprimer cet agent ?")) {
-            window.db.collection("users").doc(id).delete().then(() => this.log("Compte révoqué : " + id));
+            window.db.collection("users").doc(id).delete().then(() => App.logger.log("Compte révoqué : " + id));
         }
     },
    
@@ -177,10 +177,10 @@ App.modules.parametres = {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true })
         .then(() => {
-            this.log(`✅ Service "${name}" enregistré.`);
+            App.logger.log(`✅ Service "${name}" enregistré.`);
             nameInput.value = "";
         })
-        .catch(err => this.log("❌ Erreur service : " + err.message));
+        .catch(err => App.logger.log("❌ Erreur service : " + err.message));
     },
 
     // 7. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
@@ -208,14 +208,14 @@ App.modules.parametres = {
                 // Injection automatique dans le menu déroulant des agents
                 selectAgent.innerHTML += `<option value="${s.name}">${s.name}</option>`;
             });
-        }, err => this.log("Erreur flux services: " + err.message));
+        }, err => App.logger.log("Erreur flux services: " + err.message));
     },
 
     // 8. SUPPRIMER UN SERVICE
     deleteService: function(id) {
         if (confirm(`Supprimer le service "${id}" ?`)) {
             window.db.collection("services").doc(id).delete()
-                .then(() => this.log(`🗑️ Service "${id}" supprimé.`));
+                .then(() => App.logger.log(`🗑️ Service "${id}" supprimé.`));
         }
     },
 };
