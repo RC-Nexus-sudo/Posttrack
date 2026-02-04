@@ -29,16 +29,19 @@ window.toggleOverlay = function(id) {
     if (overlay) {
         overlay.classList.toggle('hidden');
         App.logger.log(`Toggle Overlay: ${id}`, 'ui');
+        
+    //  Vérifier si la classe 'hidden' est maintenant présente
+        if (overlay.classList.contains('hidden')) {
+            // L'overlay vient d'être masqué (fermé)
+            
+            // Si l'ID correspond à l'overlay de gestion des agents/paramètres
+            if (id === 'agentsOverlay' && App.modules.parametres && typeof App.modules.parametres.clearForm === 'function') {
+                App.modules.parametres.clearForm(); // Appelle la fonction de nettoyage dans admin-logic.js
+            // Assurez-vous que l'élément HTML de votre overlay possède bien l'ID 'agentsOverlay' et qu'il a la classe hidden par défaut.
+                App.logger.log("Nettoyage du formulaire d'édition après fermeture.", "info");
+            }
+        }
     }
-};
-
-// Définition de la fonction de conversion de date dans App.utils (0.1.2)
-App.utils.convertFirestoreTimestampToDate = function(timestamp) {
-    if (!timestamp) { return null; }
-    if (timestamp instanceof Date) { return timestamp; }
-    if (typeof timestamp.toDate === 'function') { return timestamp.toDate(); }
-    if (timestamp.seconds !== undefined) { return new Date(timestamp.seconds * 1000); }
-    return null;
 };
 
 
