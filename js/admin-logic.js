@@ -4,59 +4,20 @@
 const AdminApp = {
     // 1. INITIALISATION SÉCURISÉE
     init: function() {
-        this.log("Initialisation du registre des accès...");
-        
+        // Nous utilisons le logger global de App.js au lieu d'un logger interne
+        App.logger.log("Initialisation du registre des accès (AdminLogic.init())...", "info");
+
+        // Assurez-vous que les variables globales db et auth de firebase-config.js sont accessibles
         const checkFirebase = setInterval(() => {
             if (window.db && window.auth) {
-                clearInterval(checkFirebase);
-                this.listenAuth();
-                this.loadUsers();
+                clearInterval(checkFirebase);               
+                this.loadUsersRegistry(); 
                 this.loadServices(); // Active la liste des services et le menu déroulant
             }
         }, 500);
     },
 
-    // 2. CONSOLE DE LOGS INTERNE
-    log: function(msg) {
-        const logBox = document.getElementById('admin-logs');
-        if (!logBox) return;
-        const time = new Date().toLocaleTimeString();
-        logBox.innerHTML += `<div>[${time}] ${msg}</div>`;
-        logBox.scrollTop = logBox.scrollHeight;
-    },
-
-    // 3. GARDIEN D'ACCÈS (UID & EMAIL FALLBACK)
-    listenAuth: function() {
-        window.auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = 'index.html';
-            } else {
-                this.checkAccess(user.uid, (isValid) => {
-                    if (!isValid) {
-                        this.checkAccess(user.email, (isEmailValid) => {
-                            if (!isEmailValid) {
-                                alert("Accès réservé aux administrateurs.");
-                                window.location.href = 'index.html';
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    },
-
-    checkAccess: function(id, callback) {
-        window.db.collection("users").doc(id).get().then(doc => {
-            if (doc.exists && doc.data().role?.toLowerCase() === 'admin') {
-                this.log("Session validée pour " + (doc.data().email || id));
-                callback(true);
-            } else {
-                callback(false);
-            }
-        }).catch(() => callback(false));
-    },
-
-    // 4. ENREGISTREMENT / MISE À JOUR AGENT
+    // 2. ENREGISTREMENT / MISE À JOUR AGENT
     saveUser: function() {
         let uid = document.getElementById('adm-uid').value.trim();
 
@@ -103,7 +64,7 @@ const AdminApp = {
             });
     },
 
-    // 5. CHARGEMENT DU REGISTRE AGENTS
+    // 3. CHARGEMENT DU REGISTRE AGENTS
     loadUsers: function() {
     const container = document.getElementById('users-registry');
     if (!container) return;
@@ -151,7 +112,7 @@ const AdminApp = {
 },
 
 
-    // 6. ÉDITION AGENT
+    // 4. ÉDITION AGENT
     editUser: function(id) {
         window.db.collection("users").doc(id).get().then(doc => {
             if (doc.exists) {
@@ -168,14 +129,14 @@ const AdminApp = {
         });
     },
 
-    // 7. SUPPRESSION AGENT
+    // 5. SUPPRESSION AGENT
     deleteUser: function(id) {
         if (confirm("🚨 Supprimer cet agent ?")) {
             window.db.collection("users").doc(id).delete().then(() => this.log("Compte révoqué : " + id));
         }
     },
    
-// 8. AJOUTER UN SERVICE
+   // 6. AJOUTER UN SERVICE
     addService: function() {
         const nameInput = document.getElementById('new-service-name');
         const colorInput = document.getElementById('new-service-color');
@@ -199,7 +160,7 @@ const AdminApp = {
         .catch(err => this.log("❌ Erreur service : " + err.message));
     },
 
-    // 9. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
+    // 7. CHARGER LES SERVICES (ADMIN + MENU DÉROULANT)
     loadServices: function() {
         const listAdmin = document.getElementById('services-list-admin');
         const selectAgent = document.getElementById('adm-service');
@@ -227,21 +188,11 @@ const AdminApp = {
         }, err => this.log("Erreur flux services: " + err.message));
     },
 
-    // 10. SUPPRIMER UN SERVICE
+    // 8. SUPPRIMER UN SERVICE
     deleteService: function(id) {
         if (confirm(`Supprimer le service "${id}" ?`)) {
             window.db.collection("services").doc(id).delete()
                 .then(() => this.log(`🗑️ Service "${id}" supprimé.`));
         }
     },
-
-    // 11. DÉCONNEXION
-    logout: function() {
-        window.auth.signOut().then(() => {
-            window.location.href = 'index.html';
-        });
-    }
 };
-
-// LANCEMENT
-AdminApp.init();
