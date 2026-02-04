@@ -19,7 +19,7 @@ App.modules.parametres = {
         const checkFirebase = setInterval(() => {
             if (window.db && window.auth) {
                 clearInterval(checkFirebase);               
-                this.loadUsersRegistry(); 
+                this.loadUsers(); 
                 this.loadServices(); // Active la liste des services et le menu déroulant
                 this.bindMainFormButtons();
             }
