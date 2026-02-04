@@ -184,7 +184,7 @@ App.modules.parametres = {
                 document.getElementById('adm-email').value = u.email || "";
                 document.getElementById('adm-service').value = u.service || "";
                 document.getElementById('adm-role').value = u.role || "agent";
-                this.log("Édition de l'agent : " + (u.nom || id));
+                App.logger.log("Édition de l'agent : " + (u.nom || id));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
