@@ -1,1 +1,103 @@
+<!-- Contenu Principal de la page (Fragment) -->
+<div>
+    <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Panneau d'Administration</h1>
+        <!-- L'action de déconnexion sera gérée globalement via App.auth.logout() -->
+        <button onclick="App.auth.logout()" class="text-sm text-blue-600 hover:text-blue-800">
+            Déconnexion
+        </button>
+    </header>
+
+    <!-- Zone des boutons de navigation (avec coins arrondis 2xl) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <button onclick="toggleOverlay('agentsOverlay', true); App.modules.parametres.loadUsersRegistry()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+            <i class="fas fa-users mr-2"></i> Gestion des agents
+        </button>
+        <button onclick="toggleOverlay('servicesOverlay', true); App.modules.parametres.loadServices()" 
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+            <i class="fas fa-building mr-2"></i> Gestion des services
+        </button>
+        <button onclick="toggleOverlay('accessOverlay', true)" 
+                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+            <i class="fas fa-shield-alt mr-2"></i> Gestion des accès
+        </button>
+        <button onclick="toggleOverlay('serversOverlay', true)" 
+                class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-colors">
+            <i class="fas fa-server mr-2"></i> Gestion serveurs (WIP)
+        </button>
+    </div>
+
+    <!-- OVERLAYS (MODALES) - Intégrés dans le fragment -->
+
+    <!-- Overlay Gestion des Agents (Formulaire + Registre) -->
+    <div id="agentsOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Agents et Habilitations</h2>
+                <button onclick="toggleOverlay('agentsOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Formulaire d'ajout/édition -->
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <h3 class="font-bold mb-3">Habiliter un nouvel agent</h3>
+                    <input type="hidden" id="adm-uid"> 
+                    <input type="text" id="adm-prenom" placeholder="Prénom" class="w-full mb-2 p-2 border rounded-lg">
+                    <input type="text" id="adm-nom" placeholder="Nom" class="w-full mb-2 p-2 border rounded-lg">
+                    <input type="email" id="adm-email" placeholder="Email (Login)" class="w-full mb-2 p-2 border rounded-lg">
+                    <select id="adm-service" class="w-full mb-2 p-2 border rounded-lg"></select>
+                    <select id="adm-role" class="w-full mb-4 p-2 border rounded-lg">
+                        <option value="agent">Agent standard</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                    <div class="mt-4 pt-4 border-t border-gray-300">
+                        <h4 class="font-semibold mb-2">Accès aux modules spécifiques</h4>
+                        <label class="flex items-center space-x-3"><input type="checkbox" id="access-entrants" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked><span>Courriers Entrants</span></label>
+                        <label class="flex items-center space-x-3 mt-1"><input type="checkbox" id="access-sortants" class="form-checkbox h-4 w-4 text-blue-600 rounded"><span>Courriers Sortants</span></label>
+                        <label class="flex items-center space-x-3 mt-1"><input type="checkbox" id="access-admin" class="form-checkbox h-4 w-4 text-blue-600 rounded"><span>Administration</span></label>
+                    </div>
+                    <button onclick="App.modules.parametres.saveUser()" class="mt-4 w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Enregistrer l'agent</button>
+                </div>
+                <!-- Registre des agents -->
+                <div>
+                    <h3 class="font-bold mb-3">Registre des accès</h3>
+                    <div id="users-registry" class="space-y-2">
+                        <div class="text-slate-500 italic">Chargement...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay Gestion des Services -->
+    <div id="servicesOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+         <!-- ... (Contenu de l'overlay services) ... -->
+    </div>
+    
+    <!-- Overlay Gestion des Accès -->
+    <div id="accessOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <!-- ... (Contenu de l'overlay accès) ... -->
+    </div>
+
+    <!-- Overlay Gestion Serveurs -->
+    <div id="serversOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <!-- ... (Contenu de l'overlay serveurs) ... -->
+    </div>
+    
+    <!-- Script JS pour gérer l'ouverture/fermeture des overlays -->
+    <script>
+        function toggleOverlay(overlayId, show) {
+            const overlay = document.getElementById(overlayId);
+            if (overlay) {
+                if (show) {
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                } else {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                }
+            }
+        }
+    </script>
+</div>
 
