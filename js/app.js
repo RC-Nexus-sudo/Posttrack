@@ -122,7 +122,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     } else {
         // L'utilisateur n'est pas connecté. Rediriger vers la page de connexion.
         App.logger.log("Aucun utilisateur connecté. Redirection vers login.html", "auth");
-        // window.location.href = 'login.html'; // Utilisez cette ligne si login.html est une page séparée
+        window.location.href = 'login.html'; 
     }
 });
 
