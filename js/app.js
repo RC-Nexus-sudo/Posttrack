@@ -37,12 +37,12 @@ App.utils.convertFirestoreTimestampToDate = function(timestamp) {
 // C'est ici que l'on lie les scripts externes à l'objet global App
 App.modules = App.modules || {};
 
-// Si votre admin-logic.js définit une variable globale nommée 'AdminLogic', liez-la ici:
-if (typeof AdminLogic !== 'undefined') {
-    App.modules.parametres = AdminLogic; 
+// Si le script admin-logic.js a été chargé, App.modules.parametres existera déjà.
+if (App.modules.parametres) {
     App.logger.log("Module Administration (parametres) mappé et prêt.", "info");
 } else {
-    App.logger.log("Erreur: Le script admin.logic.js n'a pas chargé AdminLogic globalement.", "error");
+    // Ce log ne devrait plus apparaître si le script est bien chargé dans index.html
+    App.logger.log("Avertissement: Le script admin-logic.js n'a pas pu se charger correctement.", "warn");
 }
 
 // Mappage des autres modules (courriers entrants, etc.)
