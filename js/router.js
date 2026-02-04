@@ -59,7 +59,7 @@ App.router = {
     // Nouvelle fonction utilitaire pour charger les templates HTML via fetch()
     loadTemplate: async function(routeId) {
         try {
-            // Tente de charger le fichier views/[routeId].html
+            // Tente de charger le fichier js/modules/[routeId].html
             const response = await fetch(`js/modules/${routeId}/${routeId}.html`);
             if (!response.ok) {
                 // Si le fichier n'existe pas (ex: sortants.html), lève une erreur
@@ -101,9 +101,7 @@ App.router = {
         try {
             // --- CAS SPÉCIFIQUE : ADMINISTRATION ---
             if (routeId === 'parametres') {
-                App.logger.log("Accès Admin : Redirection vers admin.html", "info");
-                window.location.href = 'admin.html';
-                return; // On arrête l'exécution ici
+                App.logger.log("Accès Admin : Chargement du module Administration", "info");
             }
 
             const view = this.routes[routeId];
@@ -123,6 +121,7 @@ App.router = {
                 App.logger.log(`Navigation vers : ${view.title} (via template externe)`, 'info');
 
                 // 3. Initialiser le module JavaScript associé si nécessaire
+                // Assurez-vous que votre fichier admin.logic.js est bien relié à window.App.modules.parametres
                 if (App.modules && App.modules[routeId] && typeof App.modules[routeId].init === 'function') {
                     App.modules[routeId].init(); // Appel de la fonction init() du module
                 }
