@@ -71,17 +71,52 @@
 
     <!-- Overlay Gestion des Services -->
     <div id="servicesOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-         <!-- ... (Contenu de l'overlay services) ... -->
+       <!-- Contenu de l'overlay services ici (cf. PDF 0.1.5, 0.1.6) -->
+       <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Services/Départements</h2>
+                <button onclick="toggleOverlay('servicesOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <div class="mb-6">
+                <h3 class="font-bold mb-2">Ajouter un service</h3>
+                <input type="text" id="new-service-name" placeholder="Nom du service (ex: RH)" class="w-full mb-2 p-2 border rounded-lg">
+                <div class="flex items-center gap-4">
+                    <label for="new-service-color">Couleur associée:</label>
+                    <input type="color" id="new-service-color" value="#3b82f6" class="p-1 h-10 w-14 block cursor-pointer rounded-lg border border-gray-300 bg-white">
+                </div>
+                <button onclick="AdminApp.addService()" class="mt-4 w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600">
+                    Créer le service
+                </button>
+            </div>
+            <div>
+                <h3 class="font-bold mb-2">Services existants</h3>
+                <div id="services-list-admin" class="flex flex-wrap gap-3">
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Overlay Gestion des Accès -->
     <div id="accessOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <!-- ... (Contenu de l'overlay accès) ... -->
+       <!-- Contenu de l'overlay accès ici (cf. PDF 0.1.7) -->
+       <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Gestion des Rôles et Permissions (Avancé)</h2>
+                <button onclick="toggleOverlay('accessOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <p>Cette section nécessitera l'utilisation des **Custom Claims Firebase** via une fonction Cloud ou un serveur Backend pour définir des permissions granulaires.</p>
+        </div>
     </div>
 
     <!-- Overlay Gestion Serveurs -->
     <div id="serversOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <!-- ... (Contenu de l'overlay serveurs) ... -->
-    </div>   
-</div>
+       <!-- Contenu de l'overlay serveurs ici (cf. PDF 0.1.7) -->
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Monitoring Serveurs</h2>
+                <button onclick="toggleOverlay('serversOverlay', false)" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <p>Interface pour monitorer le statut de Firebase Hosting, la charge de la base de données ou les logs d'erreurs backend.</p>
+        </div>
+    </div>
 
