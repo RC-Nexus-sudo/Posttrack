@@ -117,6 +117,7 @@ App.router = {
 
             if (templateHtml) {
                 // Le template existe : on l'injecte dans le DOM principal
+                appView.classList.remove('backdrop-blur-md', 'fixed', 'inset-0');
                 appView.innerHTML = templateHtml;
                 App.logger.log(`Navigation vers : ${view.title} (via template externe)`, 'info');
 
@@ -128,6 +129,7 @@ App.router = {
 
             } else {
                 // Le template n'existe pas (ex: module sortants) : affichage du message d'erreur
+                appView.classList.remove('backdrop-blur-md', 'fixed', 'inset-0');
                 appView.innerHTML = `
                  <div class="p-10 text-center bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
                  <i class="fa-solid fa-hourglass-start fa-2x mb-4"></i>
